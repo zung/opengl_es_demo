@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
@@ -18,7 +19,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     lateinit var points: Points
     lateinit var mTriangle2: Triangle2
     lateinit var mTriangle3: Triangle3
-    lateinit var mSquare3: Square3
+    var mSquare3: Square3? = null
+
     @Volatile
     var angle: Float = 0f
 
@@ -28,6 +30,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
     private val rotationMatrix = FloatArray(16)
+
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -49,10 +52,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     override fun onDrawFrame(unused: GL10) {
         val scratch = FloatArray(16)
-        GLES30.glClearColor(1.0f, 1.0f, 1.0f,1.0f)
+        GLES30.glClearColor(0.2f, 0.3f, 0.3f,1.0f)
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-//        mTriangle3.draw()
-        mSquare3.draw()
+        mTriangle3.draw()
+//        mSquare3?.draw()
 
 //        // Redraw background color
 //        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)

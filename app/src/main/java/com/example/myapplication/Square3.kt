@@ -11,18 +11,16 @@ class Square3 {
     private val vertexShaderCode =
         "#version 300 es\n" +
         "layout(location=0) in vec3 aPos;\n" +
-        "out vec4 vertexColor;\n" +
         "void main() {\n" +
         "   gl_Position = vec4(aPos, 1.0);\n" +
-        "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n" +
         "}\n"
 
     private val fragmentShaderCode =
         "#version 300 es\n" +
         "out vec4 FragColor;\n" +
-        "in vec4 vertexColor;\n" +
+        "uniform vec4 ourColor;\n" +
         "void main() {\n" +
-        "    FragColor = vertexColor;\n" +
+        "    FragColor = ourColor;\n" +
         "}\n"
 
     private var vertices = floatArrayOf(
@@ -36,6 +34,8 @@ class Square3 {
         0, 1, 3,
         1, 2, 3
     )
+
+    var green: Float = 0.0f
 
     var vertexBuffer: FloatBuffer =
         // (number of coordinate values * 4 bytes per float)
@@ -102,12 +102,18 @@ class Square3 {
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
         GLES30.glBindVertexArray(0)
+
     }
 
     fun draw() {
 
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram)
+
+        GLES30.glGetUniformLocation(mProgram, "ourColor").also {
+            GLES30.glUniform4f(it, 0.0f, green, 0.0f, 1.0f)
+        }
+
         GLES30.glBindVertexArray(VAO[0])
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6)
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)

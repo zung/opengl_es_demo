@@ -3,7 +3,11 @@ package com.example.myapplication
 import android.annotation.SuppressLint
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.math.sin
 
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var points: Points
     private val vPMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
+    val myGLRenderer = MyGLRenderer()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +28,8 @@ class MainActivity : AppCompatActivity() {
         glSurfaceView = findViewById(R.id.gl_surface)
         glSurfaceView?.run {
             setEGLContextClientVersion(3)
-            setRenderer(MyGLRenderer())
+
+            setRenderer(myGLRenderer)
             renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
         }
 //        glSurfaceView?.run {
@@ -55,5 +61,16 @@ class MainActivity : AppCompatActivity() {
 //
 //            }
 //        }
+//        val timer = Timer()
+//        timer.schedule(object : TimerTask(){
+//            override fun run() {
+//                glSurfaceView?.run {
+//                    myGLRenderer.mSquare3?.run {
+//                        green = (sin(System.currentTimeMillis().toDouble())).toFloat()
+//                        requestRender()
+//                    }
+//                }
+//            }
+//        }, 0, 1)
     }
 }
