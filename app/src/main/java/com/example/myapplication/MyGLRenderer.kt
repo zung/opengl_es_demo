@@ -1,15 +1,10 @@
 package com.example.myapplication
 
 import android.content.Context
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL
 import javax.microedition.khronos.opengles.GL10
 
 
@@ -20,7 +15,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     lateinit var mTriangle2: Triangle2
     lateinit var mTriangle3: Triangle3
     var mSquare3: Square3? = null
-
+    var mContext: Context? = null
     @Volatile
     var angle: Float = 0f
 
@@ -31,7 +26,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val viewMatrix = FloatArray(16)
     private val rotationMatrix = FloatArray(16)
 
-
+    constructor(context: Context) {
+        mContext = context
+    }
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
@@ -47,15 +44,15 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 //        points = Points()
 //        mTriangle2 = Triangle2()
         mTriangle3 = Triangle3()
-        mSquare3 = Square3()
+        mSquare3 = Square3(mContext)
     }
 
     override fun onDrawFrame(unused: GL10) {
         val scratch = FloatArray(16)
         GLES30.glClearColor(0.2f, 0.3f, 0.3f,1.0f)
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-        mTriangle3.draw()
-//        mSquare3?.draw()
+//        mTriangle3.draw()
+        mSquare3?.draw()
 
 //        // Redraw background color
 //        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
