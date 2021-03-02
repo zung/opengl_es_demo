@@ -2,21 +2,21 @@ package com.example.myapplication
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Matrix
-import android.nfc.Tag
 import android.opengl.GLES20
 import android.opengl.GLES30
-import android.os.Build
-import android.renderscript.Matrix2f
-import android.renderscript.Matrix4f
+import android.opengl.Matrix
 import android.util.Log
 import java.nio.*
-import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class Square3(mContext: Context?) {
+    var mFovy: Float? = 45.0f
+    var mAngle: Float? = 0.0f
+
     private val vertexShaderCode =
         "#version 300 es\n" +
                 "layout(location=0) in vec3 aPos;\n" +
@@ -24,9 +24,11 @@ class Square3(mContext: Context?) {
                 "layout (location = 2) in vec2 aTexCoord;\n" +
                 "out vec4 ourColor;\n" +
                 "out vec2 TexCoord;\n" +
-                "uniform mat4 transform;\n" +
+                "uniform mat4 model;\n" +
+                "uniform mat4 view;\n" +
+                "uniform mat4 projection;\n" +
                 "void main() {\n" +
-                "   gl_Position = transform * vec4(aPos, 1.0);\n" +
+                "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n" +
                 "   ourColor = vec4(aColor, 1.0);\n" +
                 "   TexCoord = aTexCoord;\n" +
                 "}\n"
@@ -46,11 +48,56 @@ class Square3(mContext: Context?) {
 
     private var vertices = floatArrayOf(
         //位置            //颜色            //纹理坐标(0.0, 0.0) -(2.0, 2.0）
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,      // top right
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,    // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,   // bottom left
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,1.0f,     // top left
+//        0.5f, 0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f, 1.0f,      // top right
+//        0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,    // bottom right
+//        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,   // bottom left
+//        -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f,1.0f,     // top left
+
+        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
     )
+
+    val cubePositions: ArrayList<FloatArray> = ArrayList()
+
     //EBO
     private var indices = intArrayOf(
         0, 1, 3,
@@ -87,8 +134,6 @@ class Square3(mContext: Context?) {
     var VBO = IntArray(1)
     var EBO = IntArray(1)
     var TEX = IntArray(2)
-    var trans = Matrix4f()
-    var trans2 = Matrix4f()
 
     init {
         val vertexShader: Int = loadShader(GLES30.GL_VERTEX_SHADER, vertexShaderCode)
@@ -155,6 +200,7 @@ class Square3(mContext: Context?) {
 
         GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, bitmap.width, bitmap.height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, data)
         GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
+        bitmap.recycle()
 
         val bm2 = getBitmap(mContext!!, R.drawable.face_black_face3)
         val d2 = ByteBuffer.allocate(bm2?.byteCount!!)
@@ -168,10 +214,23 @@ class Square3(mContext: Context?) {
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
         GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, bm2.width, bm2.height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, d2)
         GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
+        bm2.recycle()
 
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
         GLES30.glBindVertexArray(0)
+
+
+        cubePositions.add(floatArrayOf(0.0f, 0.0f, 0.0f))
+        cubePositions.add(floatArrayOf(2.0f, 5.0f, -15.0f))
+        cubePositions.add(floatArrayOf(-1.5f, -2.2f, -2.5f))
+        cubePositions.add(floatArrayOf(-3.8f, -2.0f, -12.3f))
+        cubePositions.add(floatArrayOf(2.4f, -0.4f, -3.5f))
+        cubePositions.add(floatArrayOf(-1.7f, 3.0f, -7.5f))
+        cubePositions.add(floatArrayOf(1.3f, -2.0f, -2.5f))
+        cubePositions.add(floatArrayOf(1.5f, 2.0f, -2.5f))
+        cubePositions.add(floatArrayOf(1.5f, 0.2f, -1.5f))
+        cubePositions.add(floatArrayOf(-1.3f, 1.0f, -1.5f))
     }
 
     fun getBitmap(context: Context, vectorDrawableId: Int): Bitmap? {
@@ -187,7 +246,7 @@ class Square3(mContext: Context?) {
         vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
         vectorDrawable.draw(canvas)
 
-        val matrix = Matrix()
+        val matrix = android.graphics.Matrix()
         matrix.setScale(1.0f, -1.0f)//垂直翻转
 //        matrix.setScale(-1.0f, 1.0f)//水平翻转
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
@@ -204,19 +263,52 @@ class Square3(mContext: Context?) {
         GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram, "texture2"), 1)
         GLES30.glUniform1f(GLES30.glGetUniformLocation(mProgram, "mVisible"), mVisible!!)
 
-        GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(mProgram, "transform"), 1, false, trans.array, 0 )
+        //
 
+        val radius = 10.0f
+        val cX = sin(mAngle!!) * radius
+        val cZ = cos(mAngle!!) * radius
+
+        val view = FloatArray(16)
+        Matrix.setIdentityM(view, 0)
+        Matrix.setLookAtM(view, 0,
+            cX, 0.0f, cZ,
+            0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f)
+
+        val projection = FloatArray(16)
+        Matrix.setIdentityM(projection, 0)
+        Matrix.perspectiveM(projection, 0, mFovy!!, 4.0f / 3.0f, 0.1f, 100.0f)
+
+        GLES30.glGetUniformLocation(mProgram, "view").also {
+            GLES30.glUniformMatrix4fv(it, 1, false, view, 0)
+        }
+        GLES30.glGetUniformLocation(mProgram, "projection").also {
+            GLES30.glUniformMatrix4fv(it, 1, false, projection, 0)
+        }
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TEX[0])
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TEX[1])
-        GLES30.glBindVertexArray(VAO[0])
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6)
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
-//        GLES30.glDrawElements(GLES30.GL_LINE_LOOP, 6, GLES30.GL_UNSIGNED_INT, 0)
 
-        GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(mProgram, "transform"), 1, false, trans2.array, 0 )
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
+        GLES30.glBindVertexArray(VAO[0])
+        cubePositions.forEachIndexed { index, floats ->
+            val model = FloatArray(16)
+            Matrix.setIdentityM(model, 0)
+            Matrix.translateM(model, 0, floats[0], floats[1], floats[2])
+            Matrix.rotateM(model, 0, model, 0, 20.0f * index, 1.0f, 0.3f, 0.5f)
+
+            GLES30.glGetUniformLocation(mProgram, "model").also {
+                GLES30.glUniformMatrix4fv(it, 1, false, model, 0)
+            }
+
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+        }
+
+//        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
+
+//        GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(mProgram, "transform"), 1, false, trans2.array, 0 )
+//        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
     }
 
     fun loadShader(type: Int, shaderCode: String): Int {

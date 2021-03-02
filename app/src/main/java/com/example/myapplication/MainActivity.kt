@@ -49,33 +49,31 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        val seekFov = findViewById<SeekBar>(R.id.seek_fov)
+        seekFov.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                myGLRenderer.mSquare3?.run {
+                    mFovy = progress.toFloat()
+                    glSurfaceView?.requestRender()
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
+
         var rot = 0.0f
         var rot2 = 0.0f
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                val t = Matrix4f()
-                val translate = Matrix4f()
-                translate.loadTranslate(0.5f, -0.5f, 0.0f)
-                t.multiply(translate)
-                val rotate = Matrix4f()
-                rotate.loadRotate(rot, 0.0f, 0.0f, 1.0f)
-                t.multiply(rotate)
-
-                //
-                val t2 = Matrix4f()
-                val translate2 = Matrix4f()
-                translate2.loadTranslate(-0.5f, 0.5f, 0.0f)
-                t2.multiply(translate2)
-                val scale = Matrix4f()
-                scale.loadScale(sin(rot2), sin(rot2), sin(rot2))
-                t2.multiply(scale)
                 myGLRenderer.mSquare3?.run {
-                    trans = t
-                    trans2 = t2
+                    mAngle = rot
                     glSurfaceView?.requestRender()
                 }
-                rot += 1
-                rot2 += 0.01f
+                rot += 0.01f
             }
 
         }, 100, 10)

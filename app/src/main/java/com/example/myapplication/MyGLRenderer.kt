@@ -16,15 +16,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     lateinit var mTriangle3: Triangle3
     var mSquare3: Square3? = null
     var mContext: Context? = null
-    @Volatile
-    var angle: Float = 0f
-
-
-    // vPMatrix is an abbreviation for "Model View Projection Matrix"
-    private val vPMatrix = FloatArray(16)
-    private val projectionMatrix = FloatArray(16)
-    private val viewMatrix = FloatArray(16)
-    private val rotationMatrix = FloatArray(16)
 
     constructor(context: Context) {
         mContext = context
@@ -82,12 +73,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
-
-        val ratio: Float = width.toFloat() / height.toFloat()
-
-        // this projection matrix is applied to object coordinates
-        // in the onDrawFrame() method
-        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
     }
 
 
