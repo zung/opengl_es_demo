@@ -5,11 +5,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.nfc.Tag
 import android.opengl.GLES20
 import android.opengl.GLES30
 import android.os.Build
+import android.renderscript.Matrix2f
+import android.renderscript.Matrix4f
 import android.util.Log
 import java.nio.*
+import java.util.*
 
 
 class Square3(mContext: Context?) {
@@ -20,8 +24,9 @@ class Square3(mContext: Context?) {
                 "layout (location = 2) in vec2 aTexCoord;\n" +
                 "out vec4 ourColor;\n" +
                 "out vec2 TexCoord;\n" +
+                "uniform mat4 transform;\n" +
                 "void main() {\n" +
-                "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n" +
+                "   gl_Position = transform * vec4(aPos, 1.0);\n" +
                 "   ourColor = vec4(aColor, 1.0);\n" +
                 "   TexCoord = aTexCoord;\n" +
                 "}\n"
@@ -36,15 +41,15 @@ class Square3(mContext: Context?) {
                 "uniform float mVisible;\n" +
                 "void main() {\n" +
                 "    FragColor = mix(texture(texture1, TexCoord), \n" +
-                "texture(texture2, vec2(1.0 - TexCoord.x, TexCoord.y)), mVisible);\n" +
+                "texture(texture2, TexCoord), mVisible);\n" +
                 "}\n"
 
     private var vertices = floatArrayOf(
         //位置            //颜色            //纹理坐标(0.0, 0.0) -(2.0, 2.0）
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,      // top right
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,    // bottom right
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,      // top right
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,    // bottom right
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,   // bottom left
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 2.0f,     // top left
+        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,1.0f,     // top left
     )
     //EBO
     private var indices = intArrayOf(
@@ -82,6 +87,8 @@ class Square3(mContext: Context?) {
     var VBO = IntArray(1)
     var EBO = IntArray(1)
     var TEX = IntArray(2)
+    var trans = Matrix4f()
+    var trans2 = Matrix4f()
 
     init {
         val vertexShader: Int = loadShader(GLES30.GL_VERTEX_SHADER, vertexShaderCode)
@@ -165,7 +172,6 @@ class Square3(mContext: Context?) {
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
         GLES30.glBindVertexArray(0)
-
     }
 
     fun getBitmap(context: Context, vectorDrawableId: Int): Bitmap? {
@@ -198,6 +204,8 @@ class Square3(mContext: Context?) {
         GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram, "texture2"), 1)
         GLES30.glUniform1f(GLES30.glGetUniformLocation(mProgram, "mVisible"), mVisible!!)
 
+        GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(mProgram, "transform"), 1, false, trans.array, 0 )
+
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TEX[0])
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
@@ -207,6 +215,8 @@ class Square3(mContext: Context?) {
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
 //        GLES30.glDrawElements(GLES30.GL_LINE_LOOP, 6, GLES30.GL_UNSIGNED_INT, 0)
 
+        GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(mProgram, "transform"), 1, false, trans2.array, 0 )
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
     }
 
     fun loadShader(type: Int, shaderCode: String): Int {
