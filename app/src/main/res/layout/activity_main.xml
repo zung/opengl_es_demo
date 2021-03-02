@@ -9,6 +9,7 @@
         android:id="@+id/gl_surface"
         android:layout_width="800px"
         android:layout_height="600px"
+        android:clickable="true"
         android:layout_gravity="center"/>
 
     <TextView
@@ -44,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:layout_marginBottom="30dp"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -82,8 +84,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:text="下"
-            android:background="@null"
-            android:textColor="@color/black"/>
+            android:textColor="@color/white"/>
     </LinearLayout>
 
 </FrameLayout>

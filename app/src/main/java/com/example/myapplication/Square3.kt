@@ -7,6 +7,7 @@ import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
 import android.renderscript.Float3
+import android.renderscript.Matrix4f
 import android.util.Log
 import java.nio.*
 import kotlin.collections.ArrayList
@@ -16,7 +17,6 @@ import kotlin.math.sin
 
 class Square3(mContext: Context?) {
     var mFovy: Float? = 45.0f
-    var mAngle: Float? = 0.0f
 
     private val vertexShaderCode =
         "#version 300 es\n" +
@@ -255,9 +255,7 @@ class Square3(mContext: Context?) {
     }
 
     var mVisible: Float? = 0.2f
-    var cpos = Float3(0.0f, 0.0f, 3.0f)
-    var cfront = Float3(0.0f, 0.0f, -1.0f)
-    var up = Float3(0.0f, 1.0f, 0.0f)
+    var camera: Camera = Camera(Float3(0.0f, 1.0f, 3.0f))
 
     fun draw() {
 
@@ -267,27 +265,12 @@ class Square3(mContext: Context?) {
         GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram, "texture2"), 1)
         GLES30.glUniform1f(GLES30.glGetUniformLocation(mProgram, "mVisible"), mVisible!!)
 
-        //
-
-        val radius = 10.0f
-        val cX = sin(mAngle!!) * radius
-        val cZ = cos(mAngle!!) * radius
-
-        val center = VectorUtils.add(cpos, cfront)
-
-        val view = FloatArray(16)
-        Matrix.setIdentityM(view, 0)
-        Matrix.setLookAtM(view, 0,
-            cpos.x, cpos.y, cpos.z,
-            center.x, center.y, center.z,
-            up.x, up.y, up.z)
-
         val projection = FloatArray(16)
         Matrix.setIdentityM(projection, 0)
         Matrix.perspectiveM(projection, 0, mFovy!!, 4.0f / 3.0f, 0.1f, 100.0f)
 
         GLES30.glGetUniformLocation(mProgram, "view").also {
-            GLES30.glUniformMatrix4fv(it, 1, false, view, 0)
+            GLES30.glUniformMatrix4fv(it, 1, false, camera.getView(), 0)
         }
         GLES30.glGetUniformLocation(mProgram, "projection").also {
             GLES30.glUniformMatrix4fv(it, 1, false, projection, 0)
@@ -302,7 +285,13 @@ class Square3(mContext: Context?) {
             val model = FloatArray(16)
             Matrix.setIdentityM(model, 0)
             Matrix.translateM(model, 0, floats[0], floats[1], floats[2])
-            Matrix.rotateM(model, 0, model, 0, 20.0f * index, 1.0f, 0.3f, 0.5f)
+
+            if (index % 3 == 0) {
+                Matrix.rotateM(model, 0, model, 0, camera.mAngle!!, 1.0f, 0.3f, 0.5f)
+            } else {
+                Matrix.rotateM(model, 0, model, 0, 20.0f * index, 1.0f, 0.3f, 0.5f)
+            }
+
 
             GLES30.glGetUniformLocation(mProgram, "model").also {
                 GLES30.glUniformMatrix4fv(it, 1, false, model, 0)

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.renderscript.Matrix4f
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.SeekBar
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var timer3: Timer
     lateinit var timer4: Timer
 
+    var lastX: Float = 0.0f
+    var lastY: Float = 0.0f
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                 timer1.schedule(object : TimerTask() {
                     override fun run() {
                         myGLRenderer.mSquare3?.run {
-                            cpos = VectorUtils.add(cpos, VectorUtils.mul(cfront, 0.05f))
+                            camera.processButtonPress(Direction.UP)
                             glSurfaceView?.requestRender()
                         }
                     }
@@ -98,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                 timer2.schedule(object : TimerTask() {
                     override fun run() {
                         myGLRenderer.mSquare3?.run {
-                            cpos = VectorUtils.sub(cpos, VectorUtils.mul(cfront, 0.05f))
+                            camera.processButtonPress(Direction.DOWN)
                             glSurfaceView?.requestRender()
                         }
                     }
@@ -117,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                     timer3.schedule(object : TimerTask() {
                         override fun run() {
                             myGLRenderer.mSquare3?.run {
-                                cpos = VectorUtils.sub(cpos, VectorUtils.mul(VectorUtils.normalize(VectorUtils.cross(cfront, up)), 0.05f))
+                                camera.processButtonPress(Direction.LEFT)
                                 glSurfaceView?.requestRender()
                             }
                         }
@@ -137,7 +140,7 @@ class MainActivity : AppCompatActivity() {
                     timer4.schedule(object : TimerTask() {
                         override fun run() {
                             myGLRenderer.mSquare3?.run {
-                                cpos = VectorUtils.add(cpos, VectorUtils.mul(VectorUtils.normalize(VectorUtils.cross(cfront, up)), 0.05f))
+                                camera.processButtonPress(Direction.RIGHT)
                                 glSurfaceView?.requestRender()
                             }
                         }
@@ -152,16 +155,16 @@ class MainActivity : AppCompatActivity() {
 
         var rot = 0.0f
         var rot2 = 0.0f
-//        Timer().schedule(object : TimerTask() {
-//            override fun run() {
-//                myGLRenderer.mSquare3?.run {
-//                    mAngle = rot
-//                    glSurfaceView?.requestRender()
-//                }
-//                rot += 0.01f
-//            }
-//
-//        }, 100, 10)
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                myGLRenderer.mSquare3?.run {
+                    camera.mAngle = rot
+                    glSurfaceView?.requestRender()
+                }
+                rot += 1f
+            }
+
+        }, 100, 10)
 //        glSurfaceView?.run {
 //            cameraTextureListener = object : CameraGLSurfaceView.CameraTextureListener {
 //                override fun onCameraViewStarted(width: Int, height: Int) {
@@ -191,6 +194,32 @@ class MainActivity : AppCompatActivity() {
 //
 //            }
 //        }
+
+        glSurfaceView?.setOnTouchListener { v, e ->
+                when(e.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        lastX = e.x
+                        lastY = e.y
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        val xoffset = e.x - lastX
+                        val yoffset = lastY - e.y
+                        lastX = e.x
+                        lastY = e.y
+                        myGLRenderer.mSquare3?.run {
+                            camera.procesMove(xoffset, yoffset)
+                            glSurfaceView?.requestRender()
+                        }
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        lastX = 0.0f
+                        lastY = 0.0f
+                    }
+                }
+
+                false
+        }
     }
 
 
