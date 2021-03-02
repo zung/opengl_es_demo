@@ -27,6 +27,15 @@ public class VectorUtils {
         return result;
     }
 
+    public static Float3 add(Float3 a, Float3 b) {
+        Float3 res = new Float3();
+        res.x = a.x + b.x;
+        res.y = a.y + b.y;
+        res.z = a.z + b.z;
+
+        return res;
+    }
+
     /**
      * Vector subtraction
      *
@@ -44,10 +53,19 @@ public class VectorUtils {
     }
 
     public static Float3 div(Float3 v, float value) {
-        v.x /= value;
-        v.y /= value;
-        v.z /= value;
-        return v;
+        Float3 res = new Float3();
+        res.x = v.x / value;
+        res.y = v.y / value;
+        res.z = v.z / value;
+        return res;
+    }
+
+    public static Float3 mul(Float3 v, float value) {
+        Float3 res = new Float3();
+        res.x = v.x * value;
+        res.y = v.y * value;
+        res.z = v.z * value;
+        return res;
     }
 
     public static Float3 negate(Float3 v) {

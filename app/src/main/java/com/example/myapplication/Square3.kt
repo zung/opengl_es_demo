@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
+import android.renderscript.Float3
 import android.util.Log
 import java.nio.*
 import kotlin.collections.ArrayList
@@ -254,6 +255,9 @@ class Square3(mContext: Context?) {
     }
 
     var mVisible: Float? = 0.2f
+    var cpos = Float3(0.0f, 0.0f, 3.0f)
+    var cfront = Float3(0.0f, 0.0f, -1.0f)
+    var up = Float3(0.0f, 1.0f, 0.0f)
 
     fun draw() {
 
@@ -269,12 +273,14 @@ class Square3(mContext: Context?) {
         val cX = sin(mAngle!!) * radius
         val cZ = cos(mAngle!!) * radius
 
+        val center = VectorUtils.add(cpos, cfront)
+
         val view = FloatArray(16)
         Matrix.setIdentityM(view, 0)
         Matrix.setLookAtM(view, 0,
-            cX, 0.0f, cZ,
-            0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f)
+            cpos.x, cpos.y, cpos.z,
+            center.x, center.y, center.z,
+            up.x, up.y, up.z)
 
         val projection = FloatArray(16)
         Matrix.setIdentityM(projection, 0)
