@@ -8,10 +8,15 @@ struct Material {
 
 struct Light {
     vec3 position;
+    //vec3 direction;
 
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 out vec4 FragColor;
@@ -26,6 +31,10 @@ uniform Material material;
 uniform Light light;
 
 void main() {
+    //衰减值计算
+    float distanc = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distanc + light.quadratic * (distanc * distanc));
+
     //环境光
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
@@ -41,6 +50,12 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
 
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+
     vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result + vec3(texture(material.emission, TexCoords)), 1.0);
+    FragColor = vec4(result, 1.0);
+    //放射光贴图效果
+    //FragColor = vec4(result + vec3(texture(material.emission, TexCoords)), 1.0);
 }

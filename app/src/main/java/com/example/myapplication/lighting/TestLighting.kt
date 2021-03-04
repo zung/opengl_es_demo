@@ -20,6 +20,7 @@ class TestLighting(mContext: Context?) {
 
     var camera: Camera = Camera(Float3(0.0f, 0.0f, 3.0f))
     var lightPos = floatArrayOf(1.2f, 1.0f, 2.0f)
+    val cubePositions: ArrayList<FloatArray> = ArrayList()
 
     private var vertices = floatArrayOf(
         //position            //normals(法向量)     //texture coords
@@ -140,6 +141,16 @@ class TestLighting(mContext: Context?) {
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
         GLES30.glBindVertexArray(0)
 
+        cubePositions.add(floatArrayOf(0.0f, 0.0f, 0.0f))
+        cubePositions.add(floatArrayOf(2.0f, 5.0f, -15.0f))
+        cubePositions.add(floatArrayOf(-1.5f, -2.2f, -2.5f))
+        cubePositions.add(floatArrayOf(-3.8f, -2.0f, -12.3f))
+        cubePositions.add(floatArrayOf(2.4f, -0.4f, -3.5f))
+        cubePositions.add(floatArrayOf(-1.7f, 3.0f, -7.5f))
+        cubePositions.add(floatArrayOf(1.3f, -2.0f, -2.5f))
+        cubePositions.add(floatArrayOf(1.5f, 2.0f, -2.5f))
+        cubePositions.add(floatArrayOf(1.5f, 0.2f, -1.5f))
+        cubePositions.add(floatArrayOf(-1.3f, 1.0f, -1.5f))
     }
 
     fun draw() {
@@ -147,15 +158,11 @@ class TestLighting(mContext: Context?) {
         Matrix.setIdentityM(projection, 0)
         Matrix.perspectiveM(projection, 0, camera.zoom * 2, 4.0f / 3.0f, 0.1f, 100.0f)
 
-        val model = FloatArray(16)
-        Matrix.setIdentityM(model, 0)
-
         // Add program to OpenGL ES environment
         objectShader?.run {
             use()
             setMatrix4f("projection", projection)
             setMatrix4f("view", camera.getView())
-            setMatrix4f("model", model)
             setVec3("light.position", lightPos)
             setVec3("viewPos", camera.cpos.x, camera.cpos.y, camera.cpos.z)
 
@@ -170,6 +177,11 @@ class TestLighting(mContext: Context?) {
             setVec3("light.ambient", 0.2f, 0.2f, 0.2f)
             setVec3("light.diffuse", 0.5f, 0.5f, 0.5f)
             setVec3("light.specular", 1.0f, 1.0f, 1.0f)
+
+            //设置衰减 attenuation
+            setFloat("light.constant", 1.0f)
+            setFloat("light.linear", 0.09f)
+            setFloat("light.quadratic", 0.032f)
 
             //设置材质
             setVec3("material.specular", 0.5f, 0.5f, 0.5f)
@@ -186,7 +198,17 @@ class TestLighting(mContext: Context?) {
 
         //renderer cube
         GLES30.glBindVertexArray(VAO[0])
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+
+        cubePositions.forEachIndexed { index, floats ->
+            val model = FloatArray(16)
+            Matrix.setIdentityM(model, 0)
+            Matrix.translateM(model, 0, floats[0], floats[1], floats[2])
+            Matrix.rotateM(model, 0, radians(20.0f * index), 1.0f, 0.3f, 0.5f)
+            objectShader?.setMatrix4f("model", model)
+
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+        }
+
 
         //light
         lightShader?.run {
