@@ -37,6 +37,7 @@ class SquareActivity : AppCompatActivity() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 myGLRenderer?.mSquare3?.run {
+                    mVisible = progress / 100.0f
                     glSurfaceView?.requestRender()
                 }
             }
@@ -145,16 +146,16 @@ class SquareActivity : AppCompatActivity() {
 
         var rot = 0.0f
         var rot2 = 0.0f
-//        Timer().schedule(object : TimerTask() {
-//            override fun run() {
-//                myGLRenderer.mTriangle?.run {
-//                    camera.mAngle = rot
-//                    glSurfaceView?.requestRender()
-//                }
-//                rot += 1f
-//            }
-//
-//        }, 100, 10)
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                myGLRenderer?.mSquare3?.run {
+                    camera.mAngle = rot
+                    glSurfaceView?.requestRender()
+                }
+                rot += 1f
+            }
+
+        }, 100, 10)
 //        glSurfaceView?.run {
 //            cameraTextureListener = object : CameraGLSurfaceView.CameraTextureListener {
 //                override fun onCameraViewStarted(width: Int, height: Int) {

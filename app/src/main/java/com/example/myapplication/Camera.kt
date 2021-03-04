@@ -22,7 +22,7 @@ enum class Direction {
 val YAW = -90.0f
 val PITCH = 0.0f
 val SENSITIVITY = 0.1f
-val ZOOM = 90.0f
+val ZOOM = 45.0f
 
 class Camera {
 

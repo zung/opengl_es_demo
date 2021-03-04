@@ -19,42 +19,9 @@ import kotlin.math.sin
 class Square3(mContext: Context?) {
     var mFovy: Float? = 45.0f
 
-    private val vertexShaderCode =
-        "#version 300 es\n" +
-                "layout(location=0) in vec3 aPos;\n" +
-                "layout (location = 1) in vec3 aColor;\n" +
-                "layout (location = 2) in vec2 aTexCoord;\n" +
-                "out vec4 ourColor;\n" +
-                "out vec2 TexCoord;\n" +
-                "uniform mat4 model;\n" +
-                "uniform mat4 view;\n" +
-                "uniform mat4 projection;\n" +
-                "void main() {\n" +
-                "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n" +
-                "   ourColor = vec4(aColor, 1.0);\n" +
-                "   TexCoord = aTexCoord;\n" +
-                "}\n"
-
-    private val fragmentShaderCode =
-        "#version 300 es\n" +
-                "out vec4 FragColor;\n" +
-                "in vec4 ourColor;\n" +
-                "in vec2 TexCoord;\n" +
-                "uniform sampler2D texture1;\n" +
-                "uniform sampler2D texture2;\n" +
-                "uniform float mVisible;\n" +
-                "void main() {\n" +
-                "    FragColor = mix(texture(texture1, TexCoord), \n" +
-                "texture(texture2, TexCoord), mVisible);\n" +
-                "}\n"
 
     private var vertices = floatArrayOf(
         //位置            //颜色            //纹理坐标(0.0, 0.0) -(2.0, 2.0）
-//        0.5f, 0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f, 1.0f,      // top right
-//        0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,    // bottom right
-//        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,   // bottom left
-//        -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f,1.0f,     // top left
-
         -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -106,8 +73,6 @@ class Square3(mContext: Context?) {
         1, 2, 3
     )
 
-    var green: Float = 0.0f
-
     var vertexBuffer: FloatBuffer =
         // (number of coordinate values * 4 bytes per float)
         ByteBuffer.allocateDirect(vertices.size * 4).run {
@@ -130,7 +95,7 @@ class Square3(mContext: Context?) {
                 position(0)
             }
         }
-    private var mProgram: Int
+    private var shader: ShaderUtils? = null
 
     var VAO = IntArray(1)
     var VBO = IntArray(1)
@@ -138,21 +103,8 @@ class Square3(mContext: Context?) {
     var TEX = IntArray(2)
 
     init {
-        val vertexShader: Int = loadShader(GLES30.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader: Int = loadShader(GLES30.GL_FRAGMENT_SHADER, fragmentShaderCode)
-
-        // create empty OpenGL ES Program
-        mProgram = GLES30.glCreateProgram().also {
-
-            // add the vertex shader to program
-            GLES30.glAttachShader(it, vertexShader)
-
-            // add the fragment shader to program
-            GLES30.glAttachShader(it, fragmentShader)
-//            GLES30.glBindAttribLocation(it, 0, "aPos")
-            // creates OpenGL ES program executables
-            GLES30.glLinkProgram(it)
-        }
+        shader = ShaderUtils(mContext)
+        shader?.loadShaderSource("square3_vs.vs", "square3_fs.fs")
 
         GLES30.glGenVertexArrays(1, VAO, 0)
         GLES30.glGenBuffers(1, VBO, 0)
@@ -204,7 +156,7 @@ class Square3(mContext: Context?) {
         GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
         bitmap.recycle()
 
-        val bm2 = getBitmap(mContext!!, R.drawable.face_black_face3)
+        val bm2 = getBitmap(mContext, R.drawable.face_black_face3)
         val d2 = ByteBuffer.allocate(bm2?.byteCount!!)
         d2.order(ByteOrder.nativeOrder())
         bm2.copyPixelsToBuffer(d2)
@@ -256,26 +208,25 @@ class Square3(mContext: Context?) {
     }
 
     var mVisible: Float? = 0.2f
-    var camera: Camera = Camera(Float3(0.0f, 1.0f, 3.0f))
+    var camera: Camera = Camera(Float3(0.0f, 0.0f, 3.0f))
 
     fun draw() {
 
         // Add program to OpenGL ES environment
-        GLES30.glUseProgram(mProgram)
-        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram, "texture1"), 0)
-        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram, "texture2"), 1)
-        GLES30.glUniform1f(GLES30.glGetUniformLocation(mProgram, "mVisible"), mVisible!!)
+        shader?.run {
+            use()
+            setInt("texture1", 0)
+            setInt("texture2", 1)
+            setFloat("mVisible", mVisible!!)
 
-        val projection = FloatArray(16)
-        Matrix.setIdentityM(projection, 0)
-        Matrix.perspectiveM(projection, 0, mFovy!!, 4.0f / 3.0f, 0.1f, 100.0f)
+            val projection = FloatArray(16)
+            Matrix.setIdentityM(projection, 0)
+            Matrix.perspectiveM(projection, 0, mFovy!!, 4.0f / 3.0f, 0.1f, 100.0f)
+            setMatrix4f("projection", projection)
+            setMatrix4f("view", camera.getView())
 
-        GLES30.glGetUniformLocation(mProgram, "view").also {
-            GLES30.glUniformMatrix4fv(it, 1, false, camera.getView(), 0)
         }
-        GLES30.glGetUniformLocation(mProgram, "projection").also {
-            GLES30.glUniformMatrix4fv(it, 1, false, projection, 0)
-        }
+
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TEX[0])
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
@@ -293,11 +244,7 @@ class Square3(mContext: Context?) {
                 Matrix.rotateM(model, 0, model, 0, 20.0f * index, 1.0f, 0.3f, 0.5f)
             }
 
-
-            GLES30.glGetUniformLocation(mProgram, "model").also {
-                GLES30.glUniformMatrix4fv(it, 1, false, model, 0)
-            }
-
+            shader?.setMatrix4f("model", model)
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         }
 
@@ -306,23 +253,4 @@ class Square3(mContext: Context?) {
 //        GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(mProgram, "transform"), 1, false, trans2.array, 0 )
 //        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
     }
-
-    fun loadShader(type: Int, shaderCode: String): Int {
-
-        // create a vertex shader type (GLES30.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES30.GL_FRAGMENT_SHADER)
-        return GLES30.glCreateShader(type).also { shader ->
-
-            // add the source code to the shader and compile it
-            GLES30.glShaderSource(shader, shaderCode)
-            GLES30.glCompileShader(shader)
-            val status = IntArray(1)
-            GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, status, 0)
-            if (status[0] == 0) {
-                Log.e("Square3", "Could not compile shader: " + GLES20.glGetShaderInfoLog(shader))
-                GLES20.glDeleteShader(shader)
-            }
-        }
-    }
-
 }
