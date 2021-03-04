@@ -55,7 +55,7 @@ class LightingActivity : AppCompatActivity() {
         seekFov.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 myGLRenderer.lighting?.run {
-                    mFovy = progress.toFloat()
+                    camera.zoom = progress.toFloat()
                     glSurfaceView?.requestRender()
                 }
             }

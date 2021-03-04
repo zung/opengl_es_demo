@@ -8,6 +8,7 @@ import android.renderscript.Float3
 import android.util.Log
 import com.example.myapplication.Camera
 import com.example.myapplication.ShaderUtils
+import org.opencv.core.Mat
 import java.nio.*
 
 
@@ -18,47 +19,47 @@ class TestLighting(mContext: Context?) {
     var lightPos = floatArrayOf(1.2f, 1.0f, 2.0f)
 
     private var vertices = floatArrayOf(
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
 
-        -0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
 
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
 
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
 
-        -0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f
+        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
     )
 
     //EBO
@@ -105,8 +106,12 @@ class TestLighting(mContext: Context?) {
 
         GLES30.glBindVertexArray(VAO[0])
 
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 12, 0)
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 24, 0)
         GLES30.glEnableVertexAttribArray(0)
+
+        //normal
+        GLES30.glVertexAttribPointer(1, 3, GLES30.GL_FLOAT, false, 24, 12)
+        GLES30.glEnableVertexAttribArray(1)
 
         //light
         GLES30.glGenVertexArrays(1, lightVAO, 0)
@@ -114,7 +119,7 @@ class TestLighting(mContext: Context?) {
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO[0])
 
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 12, 0)
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 24, 0)
         GLES30.glEnableVertexAttribArray(0)
 
         //unbind
@@ -124,21 +129,24 @@ class TestLighting(mContext: Context?) {
     }
 
     fun draw() {
-        // Add program to OpenGL ES environment
-        objectShader?.use()
-
         val projection = FloatArray(16)
         Matrix.setIdentityM(projection, 0)
-        Matrix.perspectiveM(projection, 0, mFovy!!, 4.0f / 3.0f, 0.1f, 100.0f)
+        Matrix.perspectiveM(projection, 0, camera.zoom * 2, 4.0f / 3.0f, 0.1f, 100.0f)
 
         val model = FloatArray(16)
         Matrix.setIdentityM(model, 0)
+        Matrix.rotateM(model, 0, 20.0f, 1.0f, -1.0f, 0.0f)
 
-        objectShader?.setMatrix4f("projection", projection)
-        objectShader?.setMatrix4f("view", camera.getView())
-        objectShader?.setMatrix4f("model", model)
-        objectShader?.setVec3("objectColor", 1.0f, 0.5f, 0.31f)
-        objectShader?.setVec3("lightColor", 1.0f, 1.0f, 1.0f)
+        // Add program to OpenGL ES environment
+        objectShader?.run {
+            use()
+            setMatrix4f("projection", projection)
+            setMatrix4f("view", camera.getView())
+            setMatrix4f("model", model)
+            setVec3("objectColor", 1.0f, 0.5f, 0.31f)
+            setVec3("lightColor", 1.0f, 1.0f, 1.0f)
+            setVec3("lightPos", lightPos)
+        }
 
         GLES30.glBindVertexArray(VAO[0])
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
@@ -148,9 +156,12 @@ class TestLighting(mContext: Context?) {
             use()
             setMatrix4f("projection", projection)
             setMatrix4f("view", camera.getView())
-            Matrix.translateM(model, 0, lightPos[0], lightPos[1], lightPos[2])
-            Matrix.scaleM(model, 0, 0.2f, 0.2f, 0.2f)
-            setMatrix4f("model", model)
+
+            val m2 = FloatArray(16)
+            Matrix.setIdentityM(m2, 0)
+            Matrix.translateM(m2, 0, lightPos[0], lightPos[1], lightPos[2])
+            Matrix.scaleM(m2, 0, 0.2f, 0.2f, 0.2f)
+            setMatrix4f("model", m2)
         }
 
         GLES30.glBindVertexArray(lightVAO[0])
