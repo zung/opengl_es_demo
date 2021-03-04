@@ -94,6 +94,7 @@ class TestLighting(mContext: Context?) {
     var lightVAO = IntArray(1)
     var diffuseMap: Int? = 0    //漫反射贴图
     var specularMap: Int? = 0   //镜面光贴图
+    var emissionMap: Int? = 0   //放射光贴图
 
     init {
         objectShader = ShaderUtils(mContext!!).also {
@@ -129,9 +130,11 @@ class TestLighting(mContext: Context?) {
         //texture
         diffuseMap = loadTexture(mContext, R.drawable.container2)
         specularMap = loadTexture(mContext, R.drawable.container2_specular)
+        emissionMap = loadTexture(mContext, R.drawable.matrix)
         objectShader?.use()
         objectShader?.setInt("material.diffuse", 0)
         objectShader?.setInt("material.specular", 1)
+        objectShader?.setInt("material.emission", 2)
 
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
@@ -178,6 +181,8 @@ class TestLighting(mContext: Context?) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuseMap!!)
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specularMap!!)
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE2)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, emissionMap!!)
 
         //renderer cube
         GLES30.glBindVertexArray(VAO[0])
