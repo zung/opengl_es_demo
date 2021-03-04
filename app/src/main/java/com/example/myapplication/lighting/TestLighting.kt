@@ -8,6 +8,7 @@ import android.renderscript.Float3
 import android.util.Log
 import com.example.myapplication.Camera
 import com.example.myapplication.ShaderUtils
+import com.example.myapplication.VectorUtils
 import org.opencv.core.Mat
 import java.nio.*
 import kotlin.math.PI
@@ -137,7 +138,6 @@ class TestLighting(mContext: Context?) {
 
         val model = FloatArray(16)
         Matrix.setIdentityM(model, 0)
-        Matrix.rotateM(model, 0, 20.0f, 1.0f, -1.0f, 0.0f)
 
         // Add program to OpenGL ES environment
         objectShader?.run {
@@ -145,10 +145,26 @@ class TestLighting(mContext: Context?) {
             setMatrix4f("projection", projection)
             setMatrix4f("view", camera.getView())
             setMatrix4f("model", model)
-            setVec3("objectColor", 1.0f, 0.5f, 0.31f)
-            setVec3("lightColor", 1.0f, 1.0f, 1.0f)
-            setVec3("lightPos", lightPos)
+            setVec3("light.position", lightPos)
             setVec3("viewPos", camera.cpos.x, camera.cpos.y, camera.cpos.z)
+
+            //设置光照强度
+            val lightColor = VectorUtils.normalize(Float3(
+                sin(radians(camera.mAngle!!) * 2.0f),
+                sin(radians(camera.mAngle!!) * 0.7f),
+                sin(radians(camera.mAngle!!) * 1.3f)
+            ))
+            val diffuseColor = VectorUtils.sub(lightColor, Float3(0.5f, 0.5f, 0.5f))
+            val ambientColor = VectorUtils.sub(diffuseColor, Float3(0.2f, 0.2f, 0.2f))
+            setVec3("light.ambient", ambientColor.x, ambientColor.y, ambientColor.z)
+            setVec3("light.diffuse", diffuseColor.x, diffuseColor.y, diffuseColor.z)
+            setVec3("light.specular", 1.0f, 1.0f, 1.0f)
+
+            //设置材质
+            setVec3("material.ambient", 1.0f, 0.5f, 0.31f)
+            setVec3("material.diffuse", 1.0f, 0.5f, 0.31f)
+            setVec3("material.specular", 0.5f, 0.5f, 0.5f)
+            setFloat("material.shininess", 32.0f)
         }
 
         GLES30.glBindVertexArray(VAO[0])
@@ -169,5 +185,9 @@ class TestLighting(mContext: Context?) {
 
         GLES30.glBindVertexArray(lightVAO[0])
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+    }
+
+    private fun radians(angle: Float) : Float {
+        return (angle * PI / 180.0f).toFloat()
     }
 }
