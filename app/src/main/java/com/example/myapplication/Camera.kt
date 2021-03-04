@@ -57,15 +57,15 @@ class Camera {
 
     fun getRorateVec3() : Float3 {
         val radius = 10.0f
-        val cX = sin(mAngle!!) * radius
-        val cZ = cos(mAngle!!) * radius
+        val cX = sin(radians(mAngle!!)) * radius
+        val cZ = cos(radians(mAngle!!)) * radius
 
-        return Float3(cX, 0.0f, cZ)
+        return VectorUtils.normalize(Float3(cX, 0.0f, cZ))
     }
 
     fun getView(): FloatArray {
 
-        val center = VectorUtils.add(cpos, cfront)
+        val center = VectorUtils.normalize(VectorUtils.add(cpos, cfront))
 
         val view = FloatArray(16)
         Matrix.setIdentityM(view, 0)

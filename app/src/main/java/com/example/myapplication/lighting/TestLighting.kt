@@ -10,6 +10,8 @@ import com.example.myapplication.Camera
 import com.example.myapplication.ShaderUtils
 import org.opencv.core.Mat
 import java.nio.*
+import kotlin.math.PI
+import kotlin.math.sin
 
 
 class TestLighting(mContext: Context?) {
@@ -146,6 +148,7 @@ class TestLighting(mContext: Context?) {
             setVec3("objectColor", 1.0f, 0.5f, 0.31f)
             setVec3("lightColor", 1.0f, 1.0f, 1.0f)
             setVec3("lightPos", lightPos)
+            setVec3("viewPos", camera.cpos.x, camera.cpos.y, camera.cpos.z)
         }
 
         GLES30.glBindVertexArray(VAO[0])
