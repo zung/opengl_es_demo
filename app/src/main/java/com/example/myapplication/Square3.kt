@@ -9,6 +9,7 @@ import android.opengl.Matrix
 import android.renderscript.Float3
 import android.renderscript.Matrix4f
 import android.util.Log
+import androidx.core.content.ContextCompat
 import java.nio.*
 import kotlin.collections.ArrayList
 import kotlin.math.cos
@@ -236,7 +237,7 @@ class Square3(mContext: Context?) {
 
     fun getBitmap(context: Context, vectorDrawableId: Int): Bitmap? {
         var bitmap: Bitmap? = null
-        val vectorDrawable = context.getDrawable(vectorDrawableId)
+        val vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableId)
 
         bitmap = Bitmap.createBitmap(
             vectorDrawable!!.intrinsicWidth,
@@ -318,7 +319,7 @@ class Square3(mContext: Context?) {
             val status = IntArray(1)
             GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, status, 0)
             if (status[0] == 0) {
-                Log.e("Triangle3", "Could not compile shader: " + GLES20.glGetShaderInfoLog(shader))
+                Log.e("Square3", "Could not compile shader: " + GLES20.glGetShaderInfoLog(shader))
                 GLES20.glDeleteShader(shader)
             }
         }

@@ -22,7 +22,7 @@ enum class Direction {
 val YAW = -90.0f
 val PITCH = 0.0f
 val SENSITIVITY = 0.1f
-val ZOOM = 45.0f
+val ZOOM = 90.0f
 
 class Camera {
 
@@ -30,7 +30,7 @@ class Camera {
 
     var cpos: Float3
     var cfront: Float3
-    lateinit var up: Float3
+    lateinit var cup: Float3
     val speed = 0.05f
     lateinit var right: Float3
     val worldUp: Float3
@@ -42,11 +42,11 @@ class Camera {
     var zoom: Float = ZOOM
 
     constructor(position: Float3 = Float3(0.0f, 0.0f, 0.0f),
-        cup: Float3 = Float3(0.0f, 1.0f, 0.0f),
+        up: Float3 = Float3(0.0f, 1.0f, 0.0f),
         front: Float3 = Float3(0.0f, 0.0f, -1.0f),
         yaw: Float = YAW, pitch: Float = PITCH, sensitivity: Float = SENSITIVITY) {
         cpos = position
-        worldUp = cup
+        worldUp = up
         cfront = front
 
         this.yaw = yaw
@@ -73,7 +73,7 @@ class Camera {
         Matrix.setLookAtM(view, 0,
             cpos.x, cpos.y, cpos.z,
             center.x, center.y, center.z,
-            up.x, up.y, up.z)
+            cup.x, cup.y, cup.z)
 
         return view
     }
@@ -95,7 +95,7 @@ class Camera {
                         VectorUtils.normalize(
                             VectorUtils.cross(
                                 cfront,
-                                up
+                                cup
                             )
                         ),
                         speed
@@ -108,7 +108,7 @@ class Camera {
                     cpos,
                     VectorUtils.mul(
                         VectorUtils.normalize(
-                            VectorUtils.cross(cfront, up)
+                            VectorUtils.cross(cfront, cup)
                         ),
                         speed
                     )
@@ -141,10 +141,10 @@ class Camera {
         front.z = sin(radians(yaw)) * cos(radians(pitch))
         cfront = VectorUtils.normalize(front)
         right = VectorUtils.normalize(VectorUtils.cross(cfront, worldUp))
-        this.up = VectorUtils.normalize(VectorUtils.cross(right, cfront))
+        this.cup = VectorUtils.normalize(VectorUtils.cross(right, cfront))
     }
 
-    fun radians(angle: Float) : Float {
+    private fun radians(angle: Float) : Float {
         return (angle * PI / 180.0f).toFloat()
     }
 }
