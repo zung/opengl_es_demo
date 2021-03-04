@@ -1,16 +1,16 @@
 package com.example.myapplication.lighting
 
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
 import android.renderscript.Float3
 import android.util.Log
-import com.example.myapplication.Camera
-import com.example.myapplication.ShaderUtils
-import com.example.myapplication.VectorUtils
+import com.example.myapplication.*
 import org.opencv.core.Mat
 import java.nio.*
+import javax.microedition.khronos.opengles.GL
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -22,47 +22,48 @@ class TestLighting(mContext: Context?) {
     var lightPos = floatArrayOf(1.2f, 1.0f, 2.0f)
 
     private var vertices = floatArrayOf(
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+        //position            //normals(法向量)     //texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-        -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
     )
 
     //EBO
@@ -91,6 +92,8 @@ class TestLighting(mContext: Context?) {
     var VAO = IntArray(1)
     var VBO = IntArray(1)
     var lightVAO = IntArray(1)
+    var diffuseMap: Int? = 0    //漫反射贴图
+    var specularMap: Int? = 0   //镜面光贴图
 
     init {
         objectShader = ShaderUtils(mContext!!).also {
@@ -102,28 +105,33 @@ class TestLighting(mContext: Context?) {
         }
 
         GLES30.glGenVertexArrays(1, VAO, 0)
-
         GLES30.glGenBuffers(1, VBO, 0)
+
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO[0])
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, 4 * vertices.size, vertexBuffer, GLES30.GL_STATIC_DRAW)
 
         GLES30.glBindVertexArray(VAO[0])
-
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 24, 0)
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 8 * 4, 0)
         GLES30.glEnableVertexAttribArray(0)
-
-        //normal
-        GLES30.glVertexAttribPointer(1, 3, GLES30.GL_FLOAT, false, 24, 12)
+        GLES30.glVertexAttribPointer(1, 3, GLES30.GL_FLOAT, false, 8 * 4, 3 * 4)
         GLES30.glEnableVertexAttribArray(1)
+        GLES30.glVertexAttribPointer(2, 2, GLES30.GL_FLOAT, false, 8 * 4, 6 * 4)
+        GLES30.glEnableVertexAttribArray(2)
 
         //light
         GLES30.glGenVertexArrays(1, lightVAO, 0)
         GLES30.glBindVertexArray(lightVAO[0])
 
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO[0])
-
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 24, 0)
+        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 8 * 4, 0)
         GLES30.glEnableVertexAttribArray(0)
+
+        //texture
+        diffuseMap = loadTexture(mContext, R.drawable.container2)
+        specularMap = loadTexture(mContext, R.drawable.container2_specular)
+        objectShader?.use()
+        objectShader?.setInt("material.diffuse", 0)
+        objectShader?.setInt("material.specular", 1)
 
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
@@ -156,17 +164,22 @@ class TestLighting(mContext: Context?) {
             ))
             val diffuseColor = VectorUtils.sub(lightColor, Float3(0.5f, 0.5f, 0.5f))
             val ambientColor = VectorUtils.sub(diffuseColor, Float3(0.2f, 0.2f, 0.2f))
-            setVec3("light.ambient", ambientColor.x, ambientColor.y, ambientColor.z)
-            setVec3("light.diffuse", diffuseColor.x, diffuseColor.y, diffuseColor.z)
+            setVec3("light.ambient", 0.2f, 0.2f, 0.2f)
+            setVec3("light.diffuse", 0.5f, 0.5f, 0.5f)
             setVec3("light.specular", 1.0f, 1.0f, 1.0f)
 
             //设置材质
-            setVec3("material.ambient", 1.0f, 0.5f, 0.31f)
-            setVec3("material.diffuse", 1.0f, 0.5f, 0.31f)
             setVec3("material.specular", 0.5f, 0.5f, 0.5f)
-            setFloat("material.shininess", 32.0f)
+            setFloat("material.shininess", 64.0f)
         }
 
+        //texture
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuseMap!!)
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specularMap!!)
+
+        //renderer cube
         GLES30.glBindVertexArray(VAO[0])
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
 
@@ -189,5 +202,28 @@ class TestLighting(mContext: Context?) {
 
     private fun radians(angle: Float) : Float {
         return (angle * PI / 180.0f).toFloat()
+    }
+
+    fun loadTexture(context: Context, resId: Int): Int {
+        var TBO = IntArray(1)
+        val bitmap = BitmapUtils.getBitmap(context, resId)
+        val data = ByteBuffer.allocate(bitmap?.byteCount!!).apply {
+            order(ByteOrder.nativeOrder())
+            bitmap.copyPixelsToBuffer(this)
+            position(0)
+        }
+
+        GLES30.glGenTextures(1, TBO, 0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TBO[0])
+        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, bitmap.width, bitmap.height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, data)
+        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
+
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+
+        bitmap.recycle()
+        return TBO[0]
     }
 }

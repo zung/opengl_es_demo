@@ -1,24 +1,14 @@
 package com.example.myapplication
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
 import android.renderscript.Float3
-import android.renderscript.Matrix4f
-import android.util.Log
-import androidx.core.content.ContextCompat
 import java.nio.*
 import kotlin.collections.ArrayList
-import kotlin.math.cos
-import kotlin.math.sin
-
 
 class Square3(mContext: Context?) {
     var mFovy: Float? = 45.0f
-
 
     private var vertices = floatArrayOf(
         //位置            //颜色            //纹理坐标(0.0, 0.0) -(2.0, 2.0）
@@ -140,7 +130,7 @@ class Square3(mContext: Context?) {
         GLES30.glVertexAttribPointer(2, 2, GLES30.GL_FLOAT, false, 8 * 4, 6 * 4)
         GLES30.glEnableVertexAttribArray(2)
 
-        val bitmap = getBitmap(mContext!!, R.drawable.tttt)
+        val bitmap = BitmapUtils.getBitmap(mContext!!, R.drawable.tttt)
         val data = ByteBuffer.allocate(bitmap?.byteCount!!)
         data.order(ByteOrder.nativeOrder())
         bitmap.copyPixelsToBuffer(data)
@@ -156,7 +146,7 @@ class Square3(mContext: Context?) {
         GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
         bitmap.recycle()
 
-        val bm2 = getBitmap(mContext, R.drawable.face_black_face3)
+        val bm2 = BitmapUtils.getBitmap(mContext, R.drawable.face_black_face3)
         val d2 = ByteBuffer.allocate(bm2?.byteCount!!)
         d2.order(ByteOrder.nativeOrder())
         bm2.copyPixelsToBuffer(d2)
@@ -185,26 +175,6 @@ class Square3(mContext: Context?) {
         cubePositions.add(floatArrayOf(1.5f, 2.0f, -2.5f))
         cubePositions.add(floatArrayOf(1.5f, 0.2f, -1.5f))
         cubePositions.add(floatArrayOf(-1.3f, 1.0f, -1.5f))
-    }
-
-    fun getBitmap(context: Context, vectorDrawableId: Int): Bitmap? {
-        var bitmap: Bitmap? = null
-        val vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableId)
-
-        bitmap = Bitmap.createBitmap(
-            vectorDrawable!!.intrinsicWidth,
-            vectorDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-        )
-
-        val canvas = Canvas(bitmap)
-        vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
-        vectorDrawable.draw(canvas)
-
-        val matrix = android.graphics.Matrix()
-        matrix.setScale(1.0f, -1.0f)//垂直翻转
-//        matrix.setScale(-1.0f, 1.0f)//水平翻转
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-        return bitmap
     }
 
     var mVisible: Float? = 0.2f
