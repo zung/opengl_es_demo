@@ -73,20 +73,7 @@ class TestLighting(mContext: Context?) {
         1, 2, 3
     )
 
-    var vertexBuffer: FloatBuffer =
-        // (number of coordinate values * 4 bytes per float)
-        ByteBuffer.allocateDirect(vertices.size * 4).run {
-            // use the device hardware's native byte order
-            order(ByteOrder.nativeOrder())
-
-            // create a floating point buffer from the ByteBuffer
-            asFloatBuffer().apply {
-                // add the coordinates to the FloatBuffer
-                put(vertices)
-                // set the buffer to read the first coordinate
-                position(0)
-            }
-        }
+    var vertexBuffer: FloatBuffer = GlUtil.createFloatBuffer(vertices)
     var objectShader: ShaderUtils? = null
     var lightShader: ShaderUtils? = null
 
@@ -232,25 +219,11 @@ class TestLighting(mContext: Context?) {
     }
 
     fun loadTexture(context: Context, resId: Int): Int {
-        var TBO = IntArray(1)
+        val TBO = IntArray(1)
         val bitmap = BitmapUtils.getBitmap(context, resId)
-        val data = ByteBuffer.allocate(bitmap?.byteCount!!).apply {
-            order(ByteOrder.nativeOrder())
-            bitmap.copyPixelsToBuffer(this)
-            position(0)
-        }
+        TBO[0] = GlUtil.createImageTexture(bitmap)
 
-        GLES30.glGenTextures(1, TBO, 0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TBO[0])
-        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, bitmap.width, bitmap.height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, data)
-        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
-
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
-
-        bitmap.recycle()
+        bitmap?.recycle()
         return TBO[0]
     }
 }

@@ -29,6 +29,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -227,6 +228,15 @@ public abstract class GlUtil {
         fb.put(coords);
         fb.position(0);
         return fb;
+    }
+
+    public static IntBuffer createIntBuffer(int[] datas) {
+        ByteBuffer bb = ByteBuffer.allocateDirect(datas.length * Integer.BYTES);
+        bb.order(ByteOrder.nativeOrder());
+        IntBuffer ib = bb.asIntBuffer();
+        ib.put(datas);
+        ib.position(0);
+        return ib;
     }
 
     public static float[] changeMVPMatrixCrop(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {

@@ -63,28 +63,8 @@ class Square3(mContext: Context?) {
         1, 2, 3
     )
 
-    var vertexBuffer: FloatBuffer =
-        // (number of coordinate values * 4 bytes per float)
-        ByteBuffer.allocateDirect(vertices.size * 4).run {
-            // use the device hardware's native byte order
-            order(ByteOrder.nativeOrder())
-
-            // create a floating point buffer from the ByteBuffer
-            asFloatBuffer().apply {
-                // add the coordinates to the FloatBuffer
-                put(vertices)
-                // set the buffer to read the first coordinate
-                position(0)
-            }
-        }
-    var indicesBuffer : IntBuffer =
-        ByteBuffer.allocateDirect(indices.size * 4).run {
-            order(ByteOrder.nativeOrder())
-            asIntBuffer().apply {
-                put(indices)
-                position(0)
-            }
-        }
+    var vertexBuffer: FloatBuffer = GlUtil.createFloatBuffer(vertices)
+    var indicesBuffer : IntBuffer = GlUtil.createIntBuffer(indices)
     private var shader: ShaderUtils? = null
 
     var VAO = IntArray(1)
@@ -131,34 +111,12 @@ class Square3(mContext: Context?) {
         GLES30.glEnableVertexAttribArray(2)
 
         val bitmap = BitmapUtils.getBitmap(mContext!!, R.drawable.tttt)
-        val data = ByteBuffer.allocate(bitmap?.byteCount!!)
-        data.order(ByteOrder.nativeOrder())
-        bitmap.copyPixelsToBuffer(data)
-        data.position(0)
-        GLES30.glGenTextures(2, TEX, 0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TEX[0])
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
-
-        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, bitmap.width, bitmap.height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, data)
-        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
-        bitmap.recycle()
+        TEX[0] = GlUtil.createImageTexture(bitmap)
+        bitmap?.recycle()
 
         val bm2 = BitmapUtils.getBitmap(mContext, R.drawable.face_black_face3)
-        val d2 = ByteBuffer.allocate(bm2?.byteCount!!)
-        d2.order(ByteOrder.nativeOrder())
-        bm2.copyPixelsToBuffer(d2)
-        d2.position(0)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, TEX[1])
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
-        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, bm2.width, bm2.height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, d2)
-        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
-        bm2.recycle()
+        TEX[1] = GlUtil.createImageTexture(bm2)
+        bm2?.recycle()
 
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
