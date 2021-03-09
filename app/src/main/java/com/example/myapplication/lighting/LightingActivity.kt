@@ -29,6 +29,7 @@ class LightingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lighting)
         glSurfaceView = findViewById(R.id.gl_surface)
+
         glSurfaceView?.run {
             setEGLContextClientVersion(3)
 
