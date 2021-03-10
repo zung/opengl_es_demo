@@ -135,7 +135,8 @@ class Square3(mContext: Context?): Shape() {
     }
 
     override fun draw() {
-
+        GLES30.glClearColor(1.0f, 1.0f, 1.0f,1.0f)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         // Add program to OpenGL ES environment
         shader?.run {
             use()

@@ -135,6 +135,8 @@ class MultipleLighting(mContext: Context?): Shape() {
     }
 
     override fun draw() {
+        GLES30.glClearColor(0.9f, 0.9f, 0.9f,1.0f)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         val projection = FloatArray(16)
         Matrix.setIdentityM(projection, 0)
         Matrix.perspectiveM(projection, 0, camera.zoom * 2, 4.0f / 3.0f, 0.1f, 100.0f)
@@ -147,31 +149,31 @@ class MultipleLighting(mContext: Context?): Shape() {
 
             //定向光
             setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f)
-            setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f)
-            setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f)
-            setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f)
+            setVec3("dirLight.ambient", 0.5f, 0.5f, 0.5f)
+            setVec3("dirLight.diffuse", 1.0f, 1.0f, 1.0f)
+            setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f)
             //点光源
             pointLightPositions.forEachIndexed { index, floats ->
                 val namePre = "pointLights[${index}]."
                 setVec3("${namePre}position", floats)
-                setVec3("${namePre}ambient", 0.05f, 0.05f, 0.05f)
-                setVec3("${namePre}diffuse", 0.8f, 0.8f, 0.8f)
-                setVec3("${namePre}specular", 1.0f, 1.0f, 1.0f)
+                setVec3("${namePre}ambient", 0.04f, 0.07f, 0.01f)
+                setVec3("${namePre}diffuse", 0.4f, 0.7f, 0.1f)
+                setVec3("${namePre}specular", 0.4f, 0.7f, 0.1f)
                 setFloat("${namePre}constant", 1.0f)
-                setFloat("${namePre}linear", 0.09f)
-                setFloat("${namePre}quadratic", 0.032f)
+                setFloat("${namePre}linear", 0.07f)
+                setFloat("${namePre}quadratic", 0.017f)
             }
             //聚光
             setVec3("spotLight.position", camera.cpos.x, camera.cpos.y, camera.cpos.z)
             setVec3("spotLight.direction", camera.cfront.x, camera.cfront.y, camera.cfront.z)
             setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f)
-            setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f)
-            setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f)
+            setVec3("spotLight.diffuse", 0.0f, 1.0f, 0.0f)
+            setVec3("spotLight.specular", 0.0f, 1.0f, 0.0f)
             setFloat("spotLight.constant", 1.0f)
-            setFloat("spotLight.linear", 0.09f)
-            setFloat("spotLight.quadratic", 0.032f)
-            setFloat("spotLight.cutOff", cos(radians(12.5f)))
-            setFloat("spotLight.outerCutOff", cos(radians((15.5f))))
+            setFloat("spotLight.linear", 0.07f)
+            setFloat("spotLight.quadratic", 0.017f)
+            setFloat("spotLight.cutOff", cos(radians(7.0f)))
+            setFloat("spotLight.outerCutOff", cos(radians((10.0f))))
 
             setVec3("viewPos", camera.cpos.x, camera.cpos.y, camera.cpos.z)
 
@@ -198,8 +200,6 @@ class MultipleLighting(mContext: Context?): Shape() {
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         }
 
-
-//使用聚光灯，把点光源屏蔽
         //light
         lightShader?.run {
             use()

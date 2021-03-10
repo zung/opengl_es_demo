@@ -41,8 +41,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     override fun onDrawFrame(unused: GL10) {
         val scratch = FloatArray(16)
-        GLES30.glClearColor(0.1f, 0.1f, 0.1f,1.0f)
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         shape?.draw()
 
 //        // Redraw background color

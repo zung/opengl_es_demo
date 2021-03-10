@@ -149,16 +149,16 @@ class LightingActivity : AppCompatActivity() {
 
         var rot = 0.0f
         var rot2 = 0.0f
-//        Timer().schedule(object : TimerTask() {
-//            override fun run() {
-//                myGLRenderer.shape?.run {
-//                    camera.mAngle = rot
-//                    glSurfaceView?.requestRender()
-//                }
-//                rot += 1f
-//            }
-//
-//        }, 100, 10)
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                myGLRenderer.shape?.run {
+                    camera.mAngle = rot
+                    glSurfaceView?.requestRender()
+                }
+                rot += 1f
+            }
+
+        }, 100, 10)
 
         glSurfaceView?.setOnTouchListener { v, e ->
             when(e.action) {
