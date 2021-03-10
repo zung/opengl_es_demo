@@ -149,45 +149,16 @@ class LightingActivity : AppCompatActivity() {
 
         var rot = 0.0f
         var rot2 = 0.0f
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                myGLRenderer.shape?.run {
-                    camera.mAngle = rot
-                    glSurfaceView?.requestRender()
-                }
-                rot += 1f
-            }
-
-        }, 100, 10)
-//        glSurfaceView?.run {
-//            cameraTextureListener = object : CameraGLSurfaceView.CameraTextureListener {
-//                override fun onCameraViewStarted(width: Int, height: Int) {
+//        Timer().schedule(object : TimerTask() {
+//            override fun run() {
+//                myGLRenderer.shape?.run {
+//                    camera.mAngle = rot
+//                    glSurfaceView?.requestRender()
 //                }
-//
-//                override fun onCameraViewStopped() {
-//                }
-//
-//                override fun onCameraTexture(
-//                    texIn: Int,
-//                    texOut: Int,
-//                    width: Int,
-//                    height: Int
-//                ): Boolean {
-//                    points = Points()
-//                    val scratch = FloatArray(16)
-//
-//                    // Redraw background color
-//                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
-//
-//                    // Set the camera position (View matrix)
-//                    Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-//
-//                    points.draw(viewMatrix)
-//                    return false
-//                }
-//
+//                rot += 1f
 //            }
-//        }
+//
+//        }, 100, 10)
 
         glSurfaceView?.setOnTouchListener { v, e ->
             when(e.action) {

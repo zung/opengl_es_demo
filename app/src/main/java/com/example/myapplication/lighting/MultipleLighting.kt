@@ -1,24 +1,18 @@
 package com.example.myapplication.lighting
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
-import android.renderscript.Float3
-import android.util.Log
 import com.example.myapplication.*
-import org.opencv.core.Mat
 import java.nio.*
-import javax.microedition.khronos.opengles.GL
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.sin
 
 
-class TestLighting1(mContext: Context?): Shape() {
+class MultipleLighting(mContext: Context?): Shape() {
     var lightPos = floatArrayOf(1.2f, 1.0f, 2.0f)
     val cubePositions: ArrayList<FloatArray> = ArrayList()
+    val pointLightPositions: ArrayList<FloatArray> = ArrayList()
 
     private var vertices = floatArrayOf(
         //position            //normals(法向量)     //texture coords
@@ -83,7 +77,7 @@ class TestLighting1(mContext: Context?): Shape() {
 
     init {
         objectShader = ShaderUtils(mContext!!).also {
-            it.loadShaderSource("objectVertexShader1.vs", "objectFragmentShader1.fs")
+            it.loadShaderSource("multiple_lights.vs", "multiple_lights.fs")
         }
 
         lightShader = ShaderUtils((mContext)).also {
@@ -133,6 +127,11 @@ class TestLighting1(mContext: Context?): Shape() {
         cubePositions.add(floatArrayOf(1.5f, 2.0f, -2.5f))
         cubePositions.add(floatArrayOf(1.5f, 0.2f, -1.5f))
         cubePositions.add(floatArrayOf(-1.3f, 1.0f, -1.5f))
+
+        pointLightPositions.add(floatArrayOf(0.7f, 0.2f, 2.0f))
+        pointLightPositions.add(floatArrayOf(2.3f, -3.3f, -4.0f))
+        pointLightPositions.add(floatArrayOf(-4.0f, 2.0f, -12.0f))
+        pointLightPositions.add(floatArrayOf(0.0f, 0.0f, -3.0f))
     }
 
     override fun draw() {
@@ -146,28 +145,35 @@ class TestLighting1(mContext: Context?): Shape() {
             setMatrix4f("projection", projection)
             setMatrix4f("view", camera.getView())
 
-            setVec3("light.position", camera.cpos.x, camera.cpos.y, camera.cpos.z)
-            setVec3("light.direction", camera.cfront.x, camera.cfront.y, camera.cfront.z)
-            setFloat("light.cutOff", cos(radians(12.5f)))
-            setFloat("light.outerCutOff", cos(radians((17.5f))))
+            //定向光
+            setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f)
+            setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f)
+            setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f)
+            setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f)
+            //点光源
+            pointLightPositions.forEachIndexed { index, floats ->
+                val namePre = "pointLights[${index}]."
+                setVec3("${namePre}position", floats)
+                setVec3("${namePre}ambient", 0.05f, 0.05f, 0.05f)
+                setVec3("${namePre}diffuse", 0.8f, 0.8f, 0.8f)
+                setVec3("${namePre}specular", 1.0f, 1.0f, 1.0f)
+                setFloat("${namePre}constant", 1.0f)
+                setFloat("${namePre}linear", 0.09f)
+                setFloat("${namePre}quadratic", 0.032f)
+            }
+            //聚光
+            setVec3("spotLight.position", camera.cpos.x, camera.cpos.y, camera.cpos.z)
+            setVec3("spotLight.direction", camera.cfront.x, camera.cfront.y, camera.cfront.z)
+            setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f)
+            setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f)
+            setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f)
+            setFloat("spotLight.constant", 1.0f)
+            setFloat("spotLight.linear", 0.09f)
+            setFloat("spotLight.quadratic", 0.032f)
+            setFloat("spotLight.cutOff", cos(radians(12.5f)))
+            setFloat("spotLight.outerCutOff", cos(radians((15.5f))))
+
             setVec3("viewPos", camera.cpos.x, camera.cpos.y, camera.cpos.z)
-
-            //设置光照强度
-            val lightColor = VectorUtils.normalize(Float3(
-                sin(radians(camera.mAngle!!) * 2.0f),
-                sin(radians(camera.mAngle!!) * 0.7f),
-                sin(radians(camera.mAngle!!) * 1.3f)
-            ))
-            val diffuseColor = VectorUtils.sub(lightColor, Float3(0.5f, 0.5f, 0.5f))
-            val ambientColor = VectorUtils.sub(diffuseColor, Float3(0.2f, 0.2f, 0.2f))
-            setVec3("light.ambient", 0.1f, 0.1f, 0.1f)
-            setVec3("light.diffuse", 0.8f, 0.8f, 0.8f)
-            setVec3("light.specular", 1.0f, 1.0f, 1.0f)
-
-            //设置衰减 attenuation
-            setFloat("light.constant", 1.0f)
-            setFloat("light.linear", 0.09f)
-            setFloat("light.quadratic", 0.032f)
 
             //设置材质
             setFloat("material.shininess", 32.0f)
@@ -192,22 +198,25 @@ class TestLighting1(mContext: Context?): Shape() {
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         }
 
+
 //使用聚光灯，把点光源屏蔽
         //light
-//        lightShader?.run {
-//            use()
-//            setMatrix4f("projection", projection)
-//            setMatrix4f("view", camera.getView())
-//
-//            val m2 = FloatArray(16)
-//            Matrix.setIdentityM(m2, 0)
-//            Matrix.translateM(m2, 0, lightPos[0], lightPos[1], lightPos[2])
-//            Matrix.scaleM(m2, 0, 0.2f, 0.2f, 0.2f)
-//            setMatrix4f("model", m2)
-//        }
-//
-//        GLES30.glBindVertexArray(lightVAO[0])
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+        lightShader?.run {
+            use()
+            setMatrix4f("projection", projection)
+            setMatrix4f("view", camera.getView())
+
+            GLES30.glBindVertexArray(lightVAO[0])
+            pointLightPositions.forEachIndexed { index, floats ->
+                val model = FloatArray(16)
+                Matrix.setIdentityM(model, 0)
+                Matrix.translateM(model, 0, floats[0], floats[1], floats[2])
+                Matrix.scaleM(model, 0, 0.2f, 0.2f, 0.2f)
+                objectShader?.setMatrix4f("model", model)
+
+                GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+            }
+        }
     }
 
     private fun radians(angle: Float) : Float {

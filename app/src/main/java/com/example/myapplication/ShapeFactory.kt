@@ -2,8 +2,7 @@ package com.example.myapplication
 
 import android.content.Context
 import com.example.myapplication.lighting.TestLighting
-import com.example.myapplication.lighting.TestLighting1
-import java.lang.reflect.Type
+import com.example.myapplication.lighting.MultipleLighting
 
 /**
  *
@@ -23,7 +22,7 @@ class ShapeFactory {
         return when(type) {
             1 -> Square3(mContext)
             2 -> TestLighting(mContext)
-            else -> TestLighting1(mContext)
+            else -> MultipleLighting(mContext)
         }
     }
 }
