@@ -12,6 +12,7 @@ import org.opencv.core.Mat
 import java.nio.*
 import javax.microedition.khronos.opengles.GL
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 
 
@@ -82,7 +83,6 @@ class TestLighting(mContext: Context?) {
     var lightVAO = IntArray(1)
     var diffuseMap: Int? = 0    //漫反射贴图
     var specularMap: Int? = 0   //镜面光贴图
-    var emissionMap: Int? = 0   //放射光贴图
 
     init {
         objectShader = ShaderUtils(mContext!!).also {
@@ -118,11 +118,9 @@ class TestLighting(mContext: Context?) {
         //texture
         diffuseMap = loadTexture(mContext, R.drawable.container2)
         specularMap = loadTexture(mContext, R.drawable.container2_specular)
-        emissionMap = loadTexture(mContext, R.drawable.matrix)
         objectShader?.use()
         objectShader?.setInt("material.diffuse", 0)
         objectShader?.setInt("material.specular", 1)
-        objectShader?.setInt("material.emission", 2)
 
         //unbind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0)
@@ -150,7 +148,11 @@ class TestLighting(mContext: Context?) {
             use()
             setMatrix4f("projection", projection)
             setMatrix4f("view", camera.getView())
-            setVec3("light.position", lightPos)
+
+            setVec3("light.position", camera.cpos.x, camera.cpos.y, camera.cpos.z)
+            setVec3("light.direction", camera.cfront.x, camera.cfront.y, camera.cfront.z)
+            setFloat("light.cutOff", cos(radians(12.5f)))
+            setFloat("light.outerCutOff", cos(radians((17.5f))))
             setVec3("viewPos", camera.cpos.x, camera.cpos.y, camera.cpos.z)
 
             //设置光照强度
@@ -161,8 +163,8 @@ class TestLighting(mContext: Context?) {
             ))
             val diffuseColor = VectorUtils.sub(lightColor, Float3(0.5f, 0.5f, 0.5f))
             val ambientColor = VectorUtils.sub(diffuseColor, Float3(0.2f, 0.2f, 0.2f))
-            setVec3("light.ambient", 0.2f, 0.2f, 0.2f)
-            setVec3("light.diffuse", 0.5f, 0.5f, 0.5f)
+            setVec3("light.ambient", 0.1f, 0.1f, 0.1f)
+            setVec3("light.diffuse", 0.8f, 0.8f, 0.8f)
             setVec3("light.specular", 1.0f, 1.0f, 1.0f)
 
             //设置衰减 attenuation
@@ -171,8 +173,7 @@ class TestLighting(mContext: Context?) {
             setFloat("light.quadratic", 0.032f)
 
             //设置材质
-            setVec3("material.specular", 0.5f, 0.5f, 0.5f)
-            setFloat("material.shininess", 64.0f)
+            setFloat("material.shininess", 32.0f)
         }
 
         //texture
@@ -180,8 +181,6 @@ class TestLighting(mContext: Context?) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, diffuseMap!!)
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, specularMap!!)
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE2)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, emissionMap!!)
 
         //renderer cube
         GLES30.glBindVertexArray(VAO[0])
@@ -196,22 +195,22 @@ class TestLighting(mContext: Context?) {
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         }
 
-
+//使用聚光灯，把点光源屏蔽
         //light
-        lightShader?.run {
-            use()
-            setMatrix4f("projection", projection)
-            setMatrix4f("view", camera.getView())
-
-            val m2 = FloatArray(16)
-            Matrix.setIdentityM(m2, 0)
-            Matrix.translateM(m2, 0, lightPos[0], lightPos[1], lightPos[2])
-            Matrix.scaleM(m2, 0, 0.2f, 0.2f, 0.2f)
-            setMatrix4f("model", m2)
-        }
-
-        GLES30.glBindVertexArray(lightVAO[0])
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+//        lightShader?.run {
+//            use()
+//            setMatrix4f("projection", projection)
+//            setMatrix4f("view", camera.getView())
+//
+//            val m2 = FloatArray(16)
+//            Matrix.setIdentityM(m2, 0)
+//            Matrix.translateM(m2, 0, lightPos[0], lightPos[1], lightPos[2])
+//            Matrix.scaleM(m2, 0, 0.2f, 0.2f, 0.2f)
+//            setMatrix4f("model", m2)
+//        }
+//
+//        GLES30.glBindVertexArray(lightVAO[0])
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
     }
 
     private fun radians(angle: Float) : Float {
