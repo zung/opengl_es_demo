@@ -15,7 +15,7 @@ import java.util.*
 class LightingActivity : AppCompatActivity() {
     private var glSurfaceView: GLSurfaceView? = null
 
-    val myGLRenderer = MyGLRenderer(this, 2)
+    val myGLRenderer = MyGLRenderer(this, 3)
     lateinit var timer1: Timer
     lateinit var timer2: Timer
     lateinit var timer3: Timer
@@ -40,7 +40,7 @@ class LightingActivity : AppCompatActivity() {
         val seekBar = findViewById<SeekBar>(R.id.seek_bar)
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                myGLRenderer.lighting?.run {
+                myGLRenderer.shape?.run {
                     glSurfaceView?.requestRender()
                 }
             }
@@ -55,7 +55,7 @@ class LightingActivity : AppCompatActivity() {
         val seekFov = findViewById<SeekBar>(R.id.seek_fov)
         seekFov.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                myGLRenderer.lighting?.run {
+                myGLRenderer.shape?.run {
                     camera.zoom = progress.toFloat()
                     glSurfaceView?.requestRender()
                 }
@@ -78,7 +78,7 @@ class LightingActivity : AppCompatActivity() {
                 timer1 = Timer()
                 timer1.schedule(object : TimerTask() {
                     override fun run() {
-                        myGLRenderer.lighting?.run {
+                        myGLRenderer.shape?.run {
                             camera.processButtonPress(Direction.UP)
                             glSurfaceView?.requestRender()
                         }
@@ -94,7 +94,7 @@ class LightingActivity : AppCompatActivity() {
                 timer2 = Timer()
                 timer2.schedule(object : TimerTask() {
                     override fun run() {
-                        myGLRenderer.lighting?.run {
+                        myGLRenderer.shape?.run {
                             camera.processButtonPress(Direction.DOWN)
                             glSurfaceView?.requestRender()
                         }
@@ -113,7 +113,7 @@ class LightingActivity : AppCompatActivity() {
                     timer3 = Timer()
                     timer3.schedule(object : TimerTask() {
                         override fun run() {
-                            myGLRenderer.lighting?.run {
+                            myGLRenderer.shape?.run {
                                 camera.processButtonPress(Direction.LEFT)
                                 glSurfaceView?.requestRender()
                             }
@@ -133,7 +133,7 @@ class LightingActivity : AppCompatActivity() {
                     timer4 = Timer()
                     timer4.schedule(object : TimerTask() {
                         override fun run() {
-                            myGLRenderer.lighting?.run {
+                            myGLRenderer.shape?.run {
                                 camera.processButtonPress(Direction.RIGHT)
                                 glSurfaceView?.requestRender()
                             }
@@ -151,7 +151,7 @@ class LightingActivity : AppCompatActivity() {
         var rot2 = 0.0f
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                myGLRenderer.lighting?.run {
+                myGLRenderer.shape?.run {
                     camera.mAngle = rot
                     glSurfaceView?.requestRender()
                 }
@@ -200,7 +200,7 @@ class LightingActivity : AppCompatActivity() {
                     val yoffset = lastY - e.y
                     lastX = e.x
                     lastY = e.y
-                    myGLRenderer.lighting?.run {
+                    myGLRenderer.shape?.run {
                         camera.procesMove(xoffset, yoffset)
                         glSurfaceView?.requestRender()
                     }

@@ -36,7 +36,7 @@ class SquareActivity : AppCompatActivity() {
         val seekBar = findViewById<SeekBar>(R.id.seek_bar)
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                myGLRenderer?.mSquare3?.run {
+                myGLRenderer?.shape?.run {
                     mVisible = progress / 100.0f
                     glSurfaceView?.requestRender()
                 }
@@ -52,7 +52,7 @@ class SquareActivity : AppCompatActivity() {
         val seekFov = findViewById<SeekBar>(R.id.seek_fov)
         seekFov.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                myGLRenderer?.mSquare3?.run {
+                myGLRenderer?.shape?.run {
                     mFovy = progress.toFloat()
                     glSurfaceView?.requestRender()
                 }
@@ -75,7 +75,7 @@ class SquareActivity : AppCompatActivity() {
                 timer1 = Timer()
                 timer1.schedule(object : TimerTask() {
                     override fun run() {
-                        myGLRenderer?.mSquare3?.run {
+                        myGLRenderer?.shape?.run {
                             camera.processButtonPress(Direction.UP)
                             glSurfaceView?.requestRender()
                         }
@@ -91,7 +91,7 @@ class SquareActivity : AppCompatActivity() {
                 timer2 = Timer()
                 timer2.schedule(object : TimerTask() {
                     override fun run() {
-                        myGLRenderer?.mSquare3?.run {
+                        myGLRenderer?.shape?.run {
                             camera.processButtonPress(Direction.DOWN)
                             glSurfaceView?.requestRender()
                         }
@@ -110,7 +110,7 @@ class SquareActivity : AppCompatActivity() {
                     timer3 = Timer()
                     timer3.schedule(object : TimerTask() {
                         override fun run() {
-                            myGLRenderer?.mSquare3?.run {
+                            myGLRenderer?.shape?.run {
                                 camera.processButtonPress(Direction.LEFT)
                                 glSurfaceView?.requestRender()
                             }
@@ -130,7 +130,7 @@ class SquareActivity : AppCompatActivity() {
                     timer4 = Timer()
                     timer4.schedule(object : TimerTask() {
                         override fun run() {
-                            myGLRenderer?.mSquare3?.run {
+                            myGLRenderer?.shape?.run {
                                 camera.processButtonPress(Direction.RIGHT)
                                 glSurfaceView?.requestRender()
                             }
@@ -148,7 +148,7 @@ class SquareActivity : AppCompatActivity() {
         var rot2 = 0.0f
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                myGLRenderer?.mSquare3?.run {
+                myGLRenderer?.shape?.run {
                     camera.mAngle = rot
                     glSurfaceView?.requestRender()
                 }
@@ -197,7 +197,7 @@ class SquareActivity : AppCompatActivity() {
                     val yoffset = lastY - e.y
                     lastX = e.x
                     lastY = e.y
-                    myGLRenderer?.mSquare3?.run {
+                    myGLRenderer?.shape?.run {
                         camera.procesMove(xoffset, yoffset)
                         glSurfaceView?.requestRender()
                     }

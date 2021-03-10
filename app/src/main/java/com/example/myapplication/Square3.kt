@@ -7,8 +7,7 @@ import android.renderscript.Float3
 import java.nio.*
 import kotlin.collections.ArrayList
 
-class Square3(mContext: Context?) {
-    var mFovy: Float? = 45.0f
+class Square3(mContext: Context?): Shape() {
 
     private var vertices = floatArrayOf(
         //位置            //颜色            //纹理坐标(0.0, 0.0) -(2.0, 2.0）
@@ -135,10 +134,7 @@ class Square3(mContext: Context?) {
         cubePositions.add(floatArrayOf(-1.3f, 1.0f, -1.5f))
     }
 
-    var mVisible: Float? = 0.2f
-    var camera: Camera = Camera(Float3(0.0f, 0.0f, 3.0f))
-
-    fun draw() {
+    override fun draw() {
 
         // Add program to OpenGL ES environment
         shader?.run {

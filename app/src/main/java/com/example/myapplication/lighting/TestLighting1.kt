@@ -16,7 +16,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-class TestLighting(mContext: Context?): Shape() {
+class TestLighting1(mContext: Context?): Shape() {
     var lightPos = floatArrayOf(1.2f, 1.0f, 2.0f)
     val cubePositions: ArrayList<FloatArray> = ArrayList()
 
@@ -83,7 +83,7 @@ class TestLighting(mContext: Context?): Shape() {
 
     init {
         objectShader = ShaderUtils(mContext!!).also {
-            it.loadShaderSource("objectVertexShader.vs", "objectFragmentShader.fs")
+            it.loadShaderSource("objectVertexShader1.vs", "objectFragmentShader1.fs")
         }
 
         lightShader = ShaderUtils((mContext)).also {

@@ -5,6 +5,7 @@ import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.example.myapplication.lighting.TestLighting
+import com.example.myapplication.lighting.TestLighting1
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -15,8 +16,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     lateinit var points: Points
     lateinit var mTriangle2: Triangle2
     var mTriangle3: Triangle3? = null
-    var mSquare3: Square3? = null
-    var lighting: TestLighting? = null
+    var shape: Shape? = null
     var mContext: Context? = null
     var mType: Int? = 0
 
@@ -39,18 +39,14 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 //        mSquare = Square2()
 //        points = Points()
 //        mTriangle2 = Triangle2()
-        when(mType) {
-            1 -> mSquare3 = Square3(mContext)
-            2 -> lighting = TestLighting(mContext)
-        }
+        shape = ShapeFactory(mContext!!).createShape(mType!!)
     }
 
     override fun onDrawFrame(unused: GL10) {
         val scratch = FloatArray(16)
         GLES30.glClearColor(0.1f, 0.1f, 0.1f,1.0f)
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-        mSquare3?.draw()
-        lighting?.draw()
+        shape?.draw()
 
 //        // Redraw background color
 //        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
