@@ -15,10 +15,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
-           cmake {
-               cppFlags "-std=c++11 -frtti -fexceptions"
-               arguments "-DOpenCV_DIR=" + "../opencv/native/jni" // , "-DANDROID_ARM_NEON=TRUE"
-           }
+            cmake {
+                cppFlags "-std=c++11 -frtti -fexceptions"
+                arguments "-DANDROID_TOOLCHAIN=clang",
+                        "-DANDROID_STL=c++_static"
+                targets "glmodel"
+            }
         }
 
         splits {
@@ -44,6 +46,12 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+    externalNativeBuild {
+        cmake {
+            path ('src/main/jni/CMakeLists.txt')
+        }
     }
 }
 

@@ -4,12 +4,15 @@ import android.annotation.SuppressLint
 import android.opengl.GLSurfaceView
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.SeekBar
 import com.example.myapplication.Direction
 import com.example.myapplication.MyGLRenderer
 import com.example.myapplication.R
+import org.opencv.core.Core
+import org.opencv.imgproc.Imgproc
 import java.util.*
 
 class LightingActivity : AppCompatActivity() {
@@ -30,6 +33,8 @@ class LightingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_lighting)
         glSurfaceView = findViewById(R.id.gl_surface)
 
+        Log.d("modelllll:", "${ModelUtil().loadModel()}dddd")
+        Log.d("modellll", "${Core.VERSION}")
         glSurfaceView?.run {
             setEGLContextClientVersion(3)
 
