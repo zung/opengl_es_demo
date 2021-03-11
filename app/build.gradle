@@ -18,18 +18,15 @@ android {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions"
                 arguments "-DANDROID_TOOLCHAIN=clang",
-                        "-DANDROID_STL=c++_static"
+                        "-DANDROID_STL=c++_static",
+                        "-DOpenCV_DIR=" + project(':sdk').projectDir + "/native/jni"
                 targets "glmodel"
             }
         }
 
-        splits {
-            abi {
-                enable true
-                universalApk false
-                reset()
-                include 'armeabi-v7a'//, 'arm64-v8a', 'x86', 'x86_64'
-            }
+        ndk {
+//            abiFilters 'armeabi'//, 'armeabi-v7a'//, 'arm64-v8a'//, 'x86', 'mips', 'mips64', 'x86_64'
+            abiFilters "armeabi-v7a", "arm64-v8a"
         }
     }
 
@@ -62,7 +59,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation project(path: ':opencv')
+    implementation project(path: ':sdk')
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

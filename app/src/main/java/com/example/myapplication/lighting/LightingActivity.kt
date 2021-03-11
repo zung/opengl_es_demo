@@ -33,8 +33,8 @@ class LightingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_lighting)
         glSurfaceView = findViewById(R.id.gl_surface)
 
-        Log.d("modelllll:", "${ModelUtil().loadModel()}dddd")
-        Log.d("modellll", "${Core.VERSION}")
+        Log.d("modellll:", "${ModelUtil().loadModel()}ddd")
+        Log.d("modellll", "${ModelUtil().opencvVersion()}")
         glSurfaceView?.run {
             setEGLContextClientVersion(3)
 

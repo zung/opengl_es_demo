@@ -13,4 +13,6 @@ class ModelUtil {
     }
 
     external fun loadModel(): Int
+
+    external fun opencvVersion():String
 }

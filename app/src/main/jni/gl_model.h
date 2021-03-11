@@ -14,3 +14,7 @@ Java_com_example_myapplication_lighting_ModelUtil_loadModel(JNIEnv
 * env,
 jobject thiz
 );
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_example_myapplication_lighting_ModelUtil_opencvVersion(JNIEnv *env, jobject thiz);
