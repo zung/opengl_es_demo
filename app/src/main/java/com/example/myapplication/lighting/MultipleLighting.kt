@@ -218,17 +218,4 @@ class MultipleLighting(mContext: Context?): Shape() {
             }
         }
     }
-
-    private fun radians(angle: Float) : Float {
-        return (angle * PI / 180.0f).toFloat()
-    }
-
-    fun loadTexture(context: Context, resId: Int): Int {
-        val TBO = IntArray(1)
-        val bitmap = BitmapUtils.getBitmap(context, resId)
-        TBO[0] = GlUtil.createImageTexture(bitmap)
-
-        bitmap?.recycle()
-        return TBO[0]
-    }
 }

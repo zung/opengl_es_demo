@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
-        <activity android:name=".lighting.LightingActivity"></activity>
+        <activity android:name=".testdepth.TestDepthActivity"></activity>
+        <activity android:name=".multiplelighting.MultipleLightingActivity" />
+        <activity android:name=".lighting.LightingActivity" />
         <activity android:name=".SquareActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

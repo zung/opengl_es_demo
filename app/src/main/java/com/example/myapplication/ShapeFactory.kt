@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Context
 import com.example.myapplication.lighting.TestLighting
 import com.example.myapplication.lighting.MultipleLighting
+import com.example.myapplication.testdepth.TestDepthShape
 
 /**
  *
@@ -18,11 +19,13 @@ class ShapeFactory {
         mContext = context
     }
 
-    fun createShape(type: Int): Shape {
+    fun createShape(type: Any): Shape? {
         return when(type) {
-            1 -> Square3(mContext)
-            2 -> TestLighting(mContext)
-            else -> MultipleLighting(mContext)
+            Square3::class.java -> Square3(mContext)
+            TestLighting::class.java -> TestLighting(mContext)
+            MultipleLighting::class.java -> MultipleLighting(mContext)
+            TestDepthShape::class.java -> TestDepthShape(mContext)
+            else -> null
         }
     }
 }

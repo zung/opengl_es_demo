@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.lighting.LightingActivity
+import com.example.myapplication.multiplelighting.MultipleLightingActivity
+import com.example.myapplication.testdepth.TestDepthActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +23,14 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn_light).setOnClickListener {
             startActivity(Intent(this, LightingActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btn_light_multiple).setOnClickListener {
+            startActivity(Intent(this, MultipleLightingActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btn_depth).setOnClickListener {
+            startActivity(Intent(this, TestDepthActivity::class.java))
         }
     }
 

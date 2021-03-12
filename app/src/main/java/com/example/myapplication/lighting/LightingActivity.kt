@@ -11,14 +11,12 @@ import android.widget.SeekBar
 import com.example.myapplication.Direction
 import com.example.myapplication.MyGLRenderer
 import com.example.myapplication.R
-import org.opencv.core.Core
-import org.opencv.imgproc.Imgproc
 import java.util.*
 
 class LightingActivity : AppCompatActivity() {
     private var glSurfaceView: GLSurfaceView? = null
 
-    val myGLRenderer = MyGLRenderer(this, 3)
+    val myGLRenderer = MyGLRenderer(this, TestLighting::class.java)
     lateinit var timer1: Timer
     lateinit var timer2: Timer
     lateinit var timer3: Timer

@@ -25,5 +25,17 @@
             android:text="光照"
             android:gravity="center"/>
 
+        <Button
+            android:id="@+id/btn_light_multiple"
+            android:textColor="@color/white"
+            android:text="多光源"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/btn_depth"
+            android:textColor="@color/white"
+            android:text="深度"
+            android:gravity="center"/>
+
     </GridLayout>
 </FrameLayout>

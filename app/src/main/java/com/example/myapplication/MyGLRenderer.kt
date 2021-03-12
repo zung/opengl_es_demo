@@ -15,11 +15,11 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     var mTriangle3: Triangle3? = null
     var shape: Shape? = null
     var mContext: Context? = null
-    var mType: Int? = 0
+    var mType: Any?
 
-    constructor(context: Context, type: Int) {
+    constructor(context: Context, clazz: Any) {
         mContext = context
-        mType = type
+        mType = clazz
     }
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -40,33 +40,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(unused: GL10) {
-        val scratch = FloatArray(16)
         shape?.draw()
 
-//        // Redraw background color
-//        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
-//
-//        // Set the camera position (View matrix)
-//        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-//
-//        // Calculate the projection and view transformation
-//        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-//
-////        mSquare.draw(scratch)
-//
-//        // Create a rotation transformation for the triangle
-////        val time = SystemClock.uptimeMillis() % 4000L
-////        val angle = 0.090f * time.toInt()
-//        Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 0f, -1.0f)
-//
-//        // Combine the rotation matrix with the projection and camera view
-//        // Note that the vPMatrix factor *must be first* in order
-//        // for the matrix multiplication product to be correct.
-//        Matrix.multiplyMM(scratch, 0, vPMatrix, 0, rotationMatrix, 0)
-
-//        points.draw(scratch)
-//        mTriangle.draw(scratch)
-//        mSquare.draw(scratch)
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {

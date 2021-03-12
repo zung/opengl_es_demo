@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.testdepth
 
 import android.annotation.SuppressLint
 import android.opengl.GLSurfaceView
@@ -7,25 +7,30 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.SeekBar
+import com.example.myapplication.Direction
+import com.example.myapplication.MyGLRenderer
+import com.example.myapplication.R
 import java.util.*
 
-class SquareActivity : AppCompatActivity() {
+class TestDepthActivity : AppCompatActivity() {
+    var myGLRenderer = MyGLRenderer(this, TestDepthShape::class.java)
 
     private var glSurfaceView: GLSurfaceView? = null
 
-    var myGLRenderer: MyGLRenderer? = MyGLRenderer(this, Square3::class.java)
     lateinit var timer1: Timer
     lateinit var timer2: Timer
     lateinit var timer3: Timer
     lateinit var timer4: Timer
+
     var lastX: Float = 0.0f
     var lastY: Float = 0.0f
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_square)
-        glSurfaceView = findViewById(R.id.gl_surface)
+        setContentView(R.layout.activity_test_depth)
 
+        glSurfaceView = findViewById(R.id.gl_surface)
         glSurfaceView?.run {
             setEGLContextClientVersion(3)
 
@@ -36,8 +41,7 @@ class SquareActivity : AppCompatActivity() {
         val seekBar = findViewById<SeekBar>(R.id.seek_bar)
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                myGLRenderer?.shape?.run {
-                    mVisible = progress / 100.0f
+                myGLRenderer.shape?.run {
                     glSurfaceView?.requestRender()
                 }
             }
@@ -52,8 +56,8 @@ class SquareActivity : AppCompatActivity() {
         val seekFov = findViewById<SeekBar>(R.id.seek_fov)
         seekFov.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                myGLRenderer?.shape?.run {
-                    mFovy = progress.toFloat()
+                myGLRenderer.shape?.run {
+                    camera.zoom = progress.toFloat()
                     glSurfaceView?.requestRender()
                 }
             }
@@ -75,7 +79,7 @@ class SquareActivity : AppCompatActivity() {
                 timer1 = Timer()
                 timer1.schedule(object : TimerTask() {
                     override fun run() {
-                        myGLRenderer?.shape?.run {
+                        myGLRenderer.shape?.run {
                             camera.processButtonPress(Direction.UP)
                             glSurfaceView?.requestRender()
                         }
@@ -91,7 +95,7 @@ class SquareActivity : AppCompatActivity() {
                 timer2 = Timer()
                 timer2.schedule(object : TimerTask() {
                     override fun run() {
-                        myGLRenderer?.shape?.run {
+                        myGLRenderer.shape?.run {
                             camera.processButtonPress(Direction.DOWN)
                             glSurfaceView?.requestRender()
                         }
@@ -110,7 +114,7 @@ class SquareActivity : AppCompatActivity() {
                     timer3 = Timer()
                     timer3.schedule(object : TimerTask() {
                         override fun run() {
-                            myGLRenderer?.shape?.run {
+                            myGLRenderer.shape?.run {
                                 camera.processButtonPress(Direction.LEFT)
                                 glSurfaceView?.requestRender()
                             }
@@ -130,7 +134,7 @@ class SquareActivity : AppCompatActivity() {
                     timer4 = Timer()
                     timer4.schedule(object : TimerTask() {
                         override fun run() {
-                            myGLRenderer?.shape?.run {
+                            myGLRenderer.shape?.run {
                                 camera.processButtonPress(Direction.RIGHT)
                                 glSurfaceView?.requestRender()
                             }
@@ -146,45 +150,16 @@ class SquareActivity : AppCompatActivity() {
 
         var rot = 0.0f
         var rot2 = 0.0f
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                myGLRenderer?.shape?.run {
-                    camera.mAngle = rot
-                    glSurfaceView?.requestRender()
-                }
-                rot += 1f
-            }
-
-        }, 100, 10)
-//        glSurfaceView?.run {
-//            cameraTextureListener = object : CameraGLSurfaceView.CameraTextureListener {
-//                override fun onCameraViewStarted(width: Int, height: Int) {
+//        Timer().schedule(object : TimerTask() {
+//            override fun run() {
+//                myGLRenderer.shape?.run {
+//                    camera.mAngle = rot
+//                    glSurfaceView?.requestRender()
 //                }
-//
-//                override fun onCameraViewStopped() {
-//                }
-//
-//                override fun onCameraTexture(
-//                    texIn: Int,
-//                    texOut: Int,
-//                    width: Int,
-//                    height: Int
-//                ): Boolean {
-//                    points = Points()
-//                    val scratch = FloatArray(16)
-//
-//                    // Redraw background color
-//                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
-//
-//                    // Set the camera position (View matrix)
-//                    Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-//
-//                    points.draw(viewMatrix)
-//                    return false
-//                }
-//
+//                rot += 1f
 //            }
-//        }
+//
+//        }, 100, 10)
 
         glSurfaceView?.setOnTouchListener { v, e ->
             when(e.action) {
@@ -197,7 +172,7 @@ class SquareActivity : AppCompatActivity() {
                     val yoffset = lastY - e.y
                     lastX = e.x
                     lastY = e.y
-                    myGLRenderer?.shape?.run {
+                    myGLRenderer.shape?.run {
                         camera.procesMove(xoffset, yoffset)
                         glSurfaceView?.requestRender()
                     }

@@ -1,8 +1,2 @@
 include ':sdk'
-rootProject.name = 'myopencv'
 include ':app'
-def opencvsdk='C:\\Users\\Administrator\\AndroidStudioProjects\\MyApplication2'
-////def opencvsdk='/<path to OpenCV-android-sdk>'
-////println opencvsdk
-//include ':opencv'
-project(':sdk').projectDir = new File(opencvsdk + '/sdk')

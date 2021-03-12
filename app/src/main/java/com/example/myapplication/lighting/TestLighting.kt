@@ -1,16 +1,11 @@
 package com.example.myapplication.lighting
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
 import android.renderscript.Float3
-import android.util.Log
 import com.example.myapplication.*
-import org.opencv.core.Mat
 import java.nio.*
-import javax.microedition.khronos.opengles.GL
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -136,6 +131,9 @@ class TestLighting(mContext: Context?): Shape() {
     }
 
     override fun draw() {
+        GLES30.glClearColor(0.2f, 0.4f, 0.6f,1.0f)
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+
         val projection = FloatArray(16)
         Matrix.setIdentityM(projection, 0)
         Matrix.perspectiveM(projection, 0, camera.zoom * 2, 4.0f / 3.0f, 0.1f, 100.0f)
@@ -210,16 +208,4 @@ class TestLighting(mContext: Context?): Shape() {
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
     }
 
-    private fun radians(angle: Float) : Float {
-        return (angle * PI / 180.0f).toFloat()
-    }
-
-    fun loadTexture(context: Context, resId: Int): Int {
-        val TBO = IntArray(1)
-        val bitmap = BitmapUtils.getBitmap(context, resId)
-        TBO[0] = GlUtil.createImageTexture(bitmap)
-
-        bitmap?.recycle()
-        return TBO[0]
-    }
 }
